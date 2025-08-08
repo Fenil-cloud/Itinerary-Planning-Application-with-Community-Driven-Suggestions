@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: notification-service
+  kafka:
+    consumer:
+      #      enable-auto-commit: false
+      bootstrap-servers: localhost:9092
+      group-id: notificationGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: AuthDto:com.ltineraryplanning.notificationservice.record.AuthDto
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enable: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
+server:
+  port: 8060
+
+kafkaTopic:
+  topic: authTopic
+  trip: tripTopic
