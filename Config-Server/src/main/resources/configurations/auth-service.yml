@@ -8,7 +8,7 @@ keycloak:
   client-secret:
   admin-username:
   admin-password:
-    
+
 spring:
   kafka:
     producer:
