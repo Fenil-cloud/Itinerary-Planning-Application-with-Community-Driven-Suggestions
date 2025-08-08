@@ -2,13 +2,13 @@ server:
   port: 8080
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET}
-  admin-username: ${KEYCLOAK_USERNAME}
-  admin-password: ${KEYCLOAK_PASSWORD}
-
+  server-url:
+  realm:
+  client-id:
+  client-secret:
+  admin-username:
+  admin-password:
+    
 spring:
   kafka:
     producer:
@@ -50,11 +50,11 @@ management:
 
 twilio:
   account:
-    sid: ${TWILIO_ACCOUNT_SID}
+    sid:
   auth:
-    token: ${TWILIO_AUTH_TOKEN}
+    token:
   phone:
-    number: ${TWILIO_PHONE_NUMBER}
+    number:
 #
 resilience4j:
   circuitbreaker:
