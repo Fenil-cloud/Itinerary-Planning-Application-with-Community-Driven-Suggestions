@@ -69,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseDTO registerUser(RegisterRequest request) {
         String adminToken  = getAdminToken();
-        log.info("admin token : {}",adminToken);
+//        log.info("admin token : {}",adminToken);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(adminToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -143,7 +143,7 @@ public class AuthServiceImpl implements AuthService {
 
 
         }catch (MessagingException exception){
-            log.info("Exception :: {}",exception.getMessage());
+//            log.info("Exception :: {}",exception.getMessage());
         }
 
         Map<String, Object> passwordPayload = Map.of(
@@ -215,10 +215,10 @@ public class AuthServiceImpl implements AuthService {
             try {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-                log.info("client_id + {}",clientId);
-                log.info("client_secret + {}",clientSecret);
-                log.info("password {} ",request.getPassword());
-                log.info("username {} ",request.getUsername());
+//                log.info("client_id + {}",clientId);
+//                log.info("client_secret + {}",clientSecret);
+//                log.info("password {} ",request.getPassword());
+//                log.info("username {} ",request.getUsername());
 
 
 
@@ -288,7 +288,7 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         String authToken = loginAdmin();
-        log.warn(authToken);
+//        log.warn(authToken);
 
         RestTemplate restTemplate = new RestTemplate();
         String Url = keycloakServerUrl+"/admin/realms/"+realm+"/users/"+id;
@@ -331,7 +331,7 @@ public class AuthServiceImpl implements AuthService {
             authDto.setFname("");
             authLinkProducer.sendAuthLink(authDto);
         }catch (MessagingException exception){
-            log.info("Resend Exception :: {}",exception.getMessage());
+//            log.info("Resend Exception :: {}",exception.getMessage());
         }
         return true;
 

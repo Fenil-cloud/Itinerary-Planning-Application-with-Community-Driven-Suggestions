@@ -24,7 +24,7 @@ public class AuthController {
 
     @PostMapping("register")
     public ResponseDTO register(@Valid @RequestBody RegisterRequest registerRequest, Errors errors) {
-        log.info("Request received");
+        //log.info("Request received");
         if (errors.hasErrors()) {
             return new ResponseDTO("200", errors.getAllErrors().get(0).getDefaultMessage(), null);
         }
