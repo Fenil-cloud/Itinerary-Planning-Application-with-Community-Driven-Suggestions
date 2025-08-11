@@ -417,5 +417,13 @@ public class AuthServiceImpl implements AuthService {
             throw new UserNotFoundException("USER NOT FOUND");
         }
     }
+
+    @Override
+    public List<EmailAndFirstNameDTO> getEmailAndFirstName(List<String> usernames) {
+        List<Object[]> list = userRepo.findEmailAndFirstNameByUsernames(usernames);
+        return list.stream()
+                .map(obj -> new EmailAndFirstNameDTO((String) obj[0], (String) obj[1]))
+                .toList();
+    }
 }
 

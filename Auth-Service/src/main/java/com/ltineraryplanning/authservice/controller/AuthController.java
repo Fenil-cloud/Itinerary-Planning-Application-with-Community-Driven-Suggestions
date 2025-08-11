@@ -1,5 +1,6 @@
 package com.ltineraryplanning.authservice.controller;
 
+import com.ltineraryplanning.authservice.dto.EmailAndFirstNameDTO;
 import com.ltineraryplanning.authservice.dto.LoginRequest;
 import com.ltineraryplanning.authservice.dto.RegisterRequest;
 import com.ltineraryplanning.authservice.dto.ResponseDTO;
@@ -8,11 +9,11 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -49,5 +50,10 @@ public class AuthController {
     @PostMapping("verify/mobile/{otp}")
     public ResponseDTO verifyMobile(@RequestHeader("Authorization") String auth,@PathVariable String otp) throws ParseException {
         return authService.verifyMobile(auth,otp);
+    }
+
+    @GetMapping("getEmailAndFirstName")
+    public List<EmailAndFirstNameDTO> getEmailAndFirstName(@RequestBody List<String> usernames){
+        return authService.getEmailAndFirstName(usernames);
     }
 }

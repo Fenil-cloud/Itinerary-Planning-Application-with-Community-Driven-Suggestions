@@ -13,6 +13,10 @@ spring:
               uri: lb:http://AUTH-SERVICE
               predicates:
                 - Path=/api/v1/auth/**
+            - id: trip-service
+              uri: lb:http://TRIP-SERVICE
+              predicates:
+                - Path=/api/v1/trip/**
 #            - id: account-service
 #              uri: lb:http://ACCOUNT-SERVICE
 #              predicates:

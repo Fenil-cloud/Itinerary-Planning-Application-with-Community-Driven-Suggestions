@@ -1,0 +1,10 @@
+server:
+  port: 8050
+
+
+kafkaTopic:
+  trip: tripTopic
+
+application:
+  config:
+    gateway-url : "http://localhost:8222"
