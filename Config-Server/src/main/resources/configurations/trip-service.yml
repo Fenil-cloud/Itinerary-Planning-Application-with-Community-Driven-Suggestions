@@ -1,6 +1,26 @@
 server:
   port: 8050
 
+spring:
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: NotificationDTO:com.ltineraryplanning.tripservice.dto.NotificationDTO
+
+  datasource:
+    url: jdbc:postgresql://localhost:5435/trips
+    username: ltineraryplanning
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 kafkaTopic:
   trip: tripTopic

@@ -129,7 +129,7 @@ public class AuthServiceImpl implements AuthService {
             UserOtp otp = new UserOtp();
             String otp_number = generateOTP();
 //            OTP
-//            smsService.sendOTP(request.getPhoneNumber(), "OTP "+otp_number+" valid for 5 minutes.");
+           smsService.sendOTP(request.getPhoneNumber(), "OTP "+otp_number+" valid for 5 minutes.");
             System.err.println(otp_number);
 //            listOTP.add(otp);
             otp.setOTP(otp_number);

@@ -11,7 +11,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: '*'
-        spring.json.type.mapping: AuthDto:com.ltineraryplanning.notificationservice.record.AuthDto
+        spring.json.type.mapping: AuthDto:com.ltineraryplanning.notificationservice.record.AuthDto,NotificationDTO:com.ltineraryplanning.notificationservice.record.NotificationDTO
   mail:
     host: localhost
     port: 1025

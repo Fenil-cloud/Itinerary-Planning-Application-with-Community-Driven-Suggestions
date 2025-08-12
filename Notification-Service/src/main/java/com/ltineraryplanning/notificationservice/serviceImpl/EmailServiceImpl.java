@@ -63,35 +63,43 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendUpcomingTripNotification(String tripName, String fname, List<SendDestinationInNotification> destinations, LocalDate startDate, LocalDate endDate, String toEmail) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+        MimeMessageHelper messageHelper = new MimeMessageHelper(
+                mimeMessage,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name()
+        );
+
         messageHelper.setFrom("itineryservice.jdbc@service.com");
-//        log.info("Template :: {}",EmailTemplates.AUTH_LINK.getTemplate());
+
         final String templateName = EmailTemplates.UPCOMING_TRIP_NOTIFICATION.getTemplate();
-        String destinationsAsString = destinations.stream()
-                .map(d -> d.getFrom() + " → " + d.getTo() + " (" + d.getStartDate() + " to " + d.getEndDate() + ")")
-                .collect(Collectors.joining(", "));
-        Map<String,Object> variables = new HashMap<>();
-        variables.put("email",toEmail);
-        variables.put("tripName",tripName);
-        variables.put("fname",fname);
-        variables.put("destination",destinationsAsString);
-        variables.put("startDate",startDate);
-        variables.put("endDate",endDate);
+
+// Pass the list directly instead of converting to string
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("email", toEmail);
+        variables.put("tripName", tripName);
+        variables.put("fname", fname);
+        variables.put("destinations", destinations); // <-- important change
+        variables.put("startDate", startDate);
+        variables.put("endDate", endDate);
 
         Context context = new Context();
         context.setVariables(variables);
-        messageHelper.setSubject(EmailTemplates.UPCOMING_TRIP_NOTIFICATION.getSubject());
-        try{
-            String htmlTemplate = templateEngine.process(templateName,context);
-            log.info(htmlTemplate);
-            messageHelper.setText(htmlTemplate,true);
-            messageHelper.setTo(toEmail);
-            javaMailSender.send(mimeMessage);
-            log.info("EMAIL-UPCOMING-TRIP - Email sent to {} with template {} ",toEmail,templateName);
 
-        }
-        catch (MessagingException e){
-            log.warn("WARNING - Can't send email to {}",toEmail);
+        messageHelper.setSubject(EmailTemplates.UPCOMING_TRIP_NOTIFICATION.getSubject());
+
+        try {
+            String htmlTemplate = templateEngine.process(templateName, context);
+            log.info(htmlTemplate);
+
+            messageHelper.setText(htmlTemplate, true);
+            messageHelper.setTo(toEmail);
+
+            javaMailSender.send(mimeMessage);
+
+            log.info("EMAIL-UPCOMING-TRIP - Email sent to {} with template {}", toEmail, templateName);
+
+        } catch (MessagingException e) {
+            log.warn("WARNING - Can't send email to {}", toEmail, e);
         }
     }
 }

@@ -52,7 +52,7 @@ public class AuthController {
         return authService.verifyMobile(auth,otp);
     }
 
-    @GetMapping("getEmailAndFirstName")
+    @PostMapping("getEmailAndFirstName")
     public List<EmailAndFirstNameDTO> getEmailAndFirstName(@RequestBody List<String> usernames){
         return authService.getEmailAndFirstName(usernames);
     }

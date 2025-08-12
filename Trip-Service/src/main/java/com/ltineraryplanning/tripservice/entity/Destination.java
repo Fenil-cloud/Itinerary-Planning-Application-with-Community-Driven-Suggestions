@@ -1,5 +1,6 @@
 package com.ltineraryplanning.tripservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,9 @@ public class Destination {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long destinationId;
+    @Column(name = "from_location")
     private String from;
+    @Column(name = "to_location")
     private String to;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -25,5 +28,6 @@ public class Destination {
     private LocalDateTime updatedAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_id", nullable = false)
+    @JsonIgnore
     private Trip trip;
 }

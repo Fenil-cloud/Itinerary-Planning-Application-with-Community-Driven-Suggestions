@@ -28,9 +28,11 @@ public class TripDTO {
     @Future(message = "Trip end date must be future date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate endDate;
-    @NotBlank(message = "Must specify trip public or not")
+    @NotNull(message = "isPrivate must not be null")
     private Boolean isPublic;
-    @NotBlank(message = "Must specify trip private or not")
+    @NotNull(message = "allowComment must not be null")
+    private Boolean allowComment;
+    @NotNull(message = "isPrivate must not be null")
     private Boolean isPrivate;
     @Enumerated(STRING)
     @NotNull(message = "Trip type must be specified")

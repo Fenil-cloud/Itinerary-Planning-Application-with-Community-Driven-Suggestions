@@ -5,6 +5,7 @@ import com.ltineraryplanning.tripservice.dto.TripDTO;
 import com.ltineraryplanning.tripservice.enums.StatusCodeEnum;
 import com.ltineraryplanning.tripservice.service.TripService;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -39,4 +40,11 @@ public class TripController {
     ResponseDTO notifyForUpComingTrip(@PathVariable Long tripId){
         return tripService.notifyForUpComingTrip(tripId);
     }
+
+    @GetMapping("{tripId}")
+    ResponseDTO getTripDetailsById(@PathVariable Long tripId){
+        return tripService.getTripDetailsById(tripId);
+    }
+
+
 }

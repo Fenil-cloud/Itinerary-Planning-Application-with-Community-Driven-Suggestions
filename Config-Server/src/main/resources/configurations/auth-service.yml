@@ -2,12 +2,12 @@ server:
   port: 8080
 
 keycloak:
-  server-url:
-  realm:
-  client-id:
-  client-secret:
-  admin-username:
-  admin-password:
+  server-url: ${KEYCLOAK_SERVER_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SERVER}
+  admin-username: ${KEYCLOAK_ADMIN}
+  admin-password: ${KEYCLOAK_PASSWORD}
 
 spring:
   kafka:

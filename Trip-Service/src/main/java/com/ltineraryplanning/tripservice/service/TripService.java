@@ -14,4 +14,6 @@ public interface TripService {
 
 
     ResponseDTO notifyForUpComingTrip(Long tripId);
+
+    ResponseDTO getTripDetailsById(Long tripId);
 }

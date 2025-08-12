@@ -9,6 +9,7 @@ import com.ltineraryplanning.tripservice.enums.StatusCodeEnum;
 import com.ltineraryplanning.tripservice.exception.TripNotFoundException;
 import com.ltineraryplanning.tripservice.repository.TripRepository;
 import com.ltineraryplanning.tripservice.service.TripService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class TripServiceImpl implements TripService {
     @Autowired
@@ -42,7 +44,7 @@ public class TripServiceImpl implements TripService {
     @Autowired
     private KafkaTemplate<String,Object> kafkaTemplate;
 
-    @Value("${kafkaTopic.trip")
+    @Value("${kafkaTopic.trip}")
     private String topic;
 
     @Override
@@ -57,7 +59,9 @@ public class TripServiceImpl implements TripService {
                 .map(dto -> {
                     Destination dest = new Destination();
                     BeanUtils.copyProperties(dto, dest);
-                    dest.setTrip(trip); // maintain bidirectional mapping
+                    dest.setTrip(trip);
+                    dest.setCreatedAt(LocalDateTime.now());
+                    dest.setUpdatedAt(null);// maintain bidirectional mapping
                     return dest;
                 })
                 .collect(Collectors.toList());
@@ -83,7 +87,9 @@ public class TripServiceImpl implements TripService {
         List<String> usernames = new ArrayList<>();
         usernames.add(trip.getUserId());
         usernames.addAll(trip.getShareWithUsernames());
+        System.err.println(usernames);
         List<EmailAndFirstNameDTO> emailAndFirstName = authServiceClient.getEmailAndFirstName(usernames);
+        System.err.println(emailAndFirstName);
         List<SendDestinationInNotification> destinationList = trip.getDestinations().stream()
                 .map(destination -> SendDestinationInNotification.builder()
                         .from(destination.getFrom())
@@ -98,7 +104,7 @@ public class TripServiceImpl implements TripService {
         NotificationDTO notificationDTO = NotificationDTO.builder()
                 .emailAndFirstName(emailAndFirstName)
                 .destinations(destinationList)
-                .tripEndDate(tripStartDate)
+                .tripStartDate(tripStartDate)
                 .tripEndDate(tripEndDate)
                 .tripName(trip.getTripName())
                 .build();
@@ -108,6 +114,13 @@ public class TripServiceImpl implements TripService {
                 .build();
         kafkaTemplate.send(message);
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.UPCOMING_TRIP_NOTIFICATION_SENT_SUCCESSFULLY,null);
+    }
+
+    @Override
+    public ResponseDTO getTripDetailsById(Long tripId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+        return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.DATA_FETCHED_SUCCESSFULLY,trip);
     }
 
 
