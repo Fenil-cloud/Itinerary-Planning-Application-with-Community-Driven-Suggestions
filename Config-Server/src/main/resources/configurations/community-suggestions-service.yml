@@ -1,0 +1,84 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://dhruv:1234@localhost:27018/CommunitySuggestions?authSource=admin
+
+  kafka:
+    consumer:
+      enable-auto-commit: false
+      bootstrap-servers: localhost:9092
+      group-id: loanPaymentGroup,accountGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: PollDetailsDTO:com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.kafka.consumer.PollDetailsDTO,Options:com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.kafka.consumer.Options,VoteDataDTO:com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.kafka.consumer.VoteDataDTO
+
+    listener:
+      ack-mode: manual_immediate
+
+    producer:
+        bootstrap-servers: localhost:9092
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        properties:
+          spring.json.type.mapping: CommunitySuggestionPoll:com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.dto.CommunitySuggestionPoll
+server:
+    port: 8095
+
+KafkaTopic:
+  topic: suggestionTopic
+  sugPoll: sugPollTopic
+  savePollDetails: savePollDetailsTopic
+  pollVote: pollVoteTopic
+
+
+keycloak:
+  server-url: ${KEYCLOAK_SERVER_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SERVER}
+  admin-username: ${KEYCLOAK_ADMIN}
+  admin-password: ${KEYCLOAK_PASSWORD}
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true          # Enables circuit breaker health indicators
+  endpoints:
+    web:
+      exposure:
+        include: health      # Exposes only the /actuator/health endpoint over HTTP
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      communityService:
+        register-health-indicator: true
+        event-consumer-buffer-size: 10
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 7s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+
+  ratelimiter:
+    instances:
+      communityServiceRateLimiter:
+        limit-refresh-period: 5s
+        limit-for-period: 10
+        timeout-duration: 1s
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 1
+    instances:
+      accountService:
+        maxConcurrentCalls: 1
+        maxWaitDuration: 0

@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Create user
         Map<String,Object> user = new HashMap<>();
-        user.put("username",request.getUsername());
+        user.put("username",request.getUsername().toLowerCase());
         user.put("enabled",true);
         user.put("email",request.getEmail());
         user.put("firstName", request.getFirstName());  // <-- Add this
@@ -225,7 +225,7 @@ public class AuthServiceImpl implements AuthService {
                 MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
                 body.add("client_id", "ltinerary-planning");
                 body.add("client_secret", clientSecret);
-                body.add("username", request.getUsername());
+                body.add("username", request.getUsername().toLowerCase());
                 body.add("password", request.getPassword());
                 body.add("grant_type", "password");
 

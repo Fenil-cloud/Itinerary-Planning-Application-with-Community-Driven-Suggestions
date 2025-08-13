@@ -4,7 +4,9 @@ import com.ltineraryplanning.authservice.dto.LoginRequest;
 import com.ltineraryplanning.authservice.dto.RegisterRequest;
 import com.ltineraryplanning.authservice.dto.ResponseDTO;
 import com.ltineraryplanning.authservice.service.AuthService;
+import com.ltineraryplanning.authservice.service.HelperService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,12 @@ public class AuthController {
     @Autowired
     AuthService authService;
 
+    @Autowired
+    HelperService helperService;
+
     @PostMapping("register")
+    @CircuitBreaker(name = "authservice", fallbackMethod = "registerFallBack")
+    @RateLimiter(name = "authRateLimiter", fallbackMethod = "registerLimitFallBack")
     public ResponseDTO register(@Valid @RequestBody RegisterRequest registerRequest, Errors errors) {
         //log.info("Request received");
         if (errors.hasErrors()) {
@@ -30,6 +37,16 @@ public class AuthController {
         }
         return authService.registerUser(registerRequest);
     }
+
+    public ResponseDTO registerFallBack(@Valid @RequestBody RegisterRequest registerRequest, Errors errors,Throwable ex) {
+        return new ResponseDTO("503", "Service not available", null);
+    }
+
+    public ResponseDTO registerLimitFallBack(@Valid @RequestBody RegisterRequest registerRequest, Errors errors,Throwable ex) {
+        return new ResponseDTO("503", "Service not available", null);
+    }
+
+
 
     @PostMapping("login")
     @CircuitBreaker(name = "authservice",fallbackMethod = "loginFallBack")
@@ -49,5 +66,10 @@ public class AuthController {
     @PostMapping("verify/mobile/{otp}")
     public ResponseDTO verifyMobile(@RequestHeader("Authorization") String auth,@PathVariable String otp) throws ParseException {
         return authService.verifyMobile(auth,otp);
+    }
+
+    @GetMapping("username")
+    public String getUserName(@RequestHeader("Authorization") String auth) throws ParseException {
+        return helperService.getUserName(auth);
     }
 }

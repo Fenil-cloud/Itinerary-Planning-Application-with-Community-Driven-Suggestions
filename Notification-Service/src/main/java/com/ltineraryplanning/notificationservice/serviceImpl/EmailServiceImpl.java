@@ -76,7 +76,7 @@ public class EmailServiceImpl implements EmailService {
         messageHelper.setSubject(EmailTemplates.UPCOMING_TRIP_NOTIFICATION.getSubject());
         try{
             String htmlTemplate = templateEngine.process(templateName,context);
-            log.info(htmlTemplate);
+//            log.info(htmlTemplate);
             messageHelper.setText(htmlTemplate,true);
             messageHelper.setTo(toEmail);
             javaMailSender.send(mimeMessage);

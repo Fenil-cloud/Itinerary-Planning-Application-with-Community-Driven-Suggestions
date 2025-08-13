@@ -2,12 +2,12 @@ server:
   port: 8080
 
 keycloak:
-  server-url:
-  realm:
-  client-id:
-  client-secret:
-  admin-username:
-  admin-password:
+  server-url: ${KEYCLOAK_SERVER_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SERVER}
+  admin-username: ${KEYCLOAK_ADMIN}
+  admin-password: ${KEYCLOAK_PASSWORD}
 
 spring:
   kafka:
@@ -20,7 +20,7 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5435/users
-    username: ltineraryplanning
+    username: dhruv
     password: 1234
     driver-class-name: org.postgresql.Driver
 
@@ -72,7 +72,7 @@ resilience4j:
 
   ratelimiter:
     instances:
-      verifyRateLimiter:
+      authRateLimiter:
         limit-refresh-period: 5s
         limit-for-period: 10
         timeout-duration: 1s
