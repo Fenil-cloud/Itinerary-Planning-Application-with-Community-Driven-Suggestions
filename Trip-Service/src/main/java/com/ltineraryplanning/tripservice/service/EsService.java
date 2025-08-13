@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public interface EsService {
     void saveTestToElastic(EsSearchItineraryDTO esSearchItineraryDTO);
     ArrayList<EsSearchItineraryDTO> searchByTripNameInEs(String name) throws JsonProcessingException;
-
     ResponseDTO searchTripName(String name) throws JsonProcessingException;
+    ResponseDTO searchWithPartialTripName(String name) throws JsonProcessingException;
 
 
 }

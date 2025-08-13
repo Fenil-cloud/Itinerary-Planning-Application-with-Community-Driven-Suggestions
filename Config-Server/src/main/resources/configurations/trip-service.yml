@@ -22,6 +22,16 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
+#  datasource:
+#    url: jdbc:h2:mem:trips
+#    username: sa
+#    password: admin
+#    driver-class-name: org.h2.Driver
+
 kafkaTopic:
   trip: tripTopic
 

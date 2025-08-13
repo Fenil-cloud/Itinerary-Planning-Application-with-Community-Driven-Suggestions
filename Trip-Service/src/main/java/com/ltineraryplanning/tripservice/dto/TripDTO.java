@@ -2,6 +2,8 @@ package com.ltineraryplanning.tripservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ltineraryplanning.tripservice.enums.TripType;
+import com.ltineraryplanning.tripservice.validation.DestinationDatesWithinTrip;
+import com.ltineraryplanning.tripservice.validation.EndDateAfterStartDate;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -17,6 +19,8 @@ import static jakarta.persistence.EnumType.STRING;
 @NoArgsConstructor
 @Builder
 @ToString
+@EndDateAfterStartDate(message = "End date must be after start date")
+@DestinationDatesWithinTrip
 public class TripDTO {
     @NotNull(message = "Number of members is required")
     private Long numberOfMembers;

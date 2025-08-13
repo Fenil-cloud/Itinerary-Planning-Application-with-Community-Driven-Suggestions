@@ -8,6 +8,7 @@ import com.ltineraryplanning.tripservice.entity.Trip;
 import com.ltineraryplanning.tripservice.enums.StatusCodeEnum;
 import com.ltineraryplanning.tripservice.exception.TripNotFoundException;
 import com.ltineraryplanning.tripservice.repository.TripRepository;
+import com.ltineraryplanning.tripservice.service.EsService;
 import com.ltineraryplanning.tripservice.service.TripService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
@@ -23,9 +24,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,6 +46,9 @@ public class TripServiceImpl implements TripService {
     @Value("${kafkaTopic.trip}")
     private String topic;
 
+    @Autowired
+    private EsService esService;
+
     @Override
     public ResponseDTO createTrip(TripDTO tripDTO,String auth) throws ParseException {
     Map<String,Object> map =  extractTokenService.extractValue(auth);
@@ -67,8 +69,11 @@ public class TripServiceImpl implements TripService {
                 .collect(Collectors.toList());
         trip.setDestinations(destinations);
         tripRepository.save(trip);
+        EsSearchItineraryDTO esSearchItineraryDTO = EsSearchItineraryDTO.builder()
+                .tripNames(Set.of(tripDTO.getTripName()))
+                .build();
+        esService.saveTestToElastic(esSearchItineraryDTO);
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(), Constants.TRIP_CREATED_SUCCESSFULLY,trip.getTripId());
-
     }
 
     @Override
@@ -121,6 +126,76 @@ public class TripServiceImpl implements TripService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.DATA_FETCHED_SUCCESSFULLY,trip);
+    }
+
+    @Override
+    public ResponseDTO updateTrip(TripDTO tripDTO,Long tripId,String authHeader,boolean fullUpdate) throws ParseException {
+        Map<String, Object> tokenData = extractTokenService.extractValue(authHeader);
+        String username = (String) tokenData.get("preferred_username");
+//        Trip trip = tripRepository.findById(tripId)
+//                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+        Optional<Trip> trip = tripRepository.findById(tripId);
+        if(trip.isEmpty()){
+            return new ResponseDTO(StatusCodeEnum.BAD_REQUEST.getStatusCode(),Constants.TRIP_NOT_FOUND ,null);
+        }
+        Trip trip1 = trip.get();
+        boolean isAllowed = trip1.getUserId().equals(username) ||
+                (trip1.getShareWithUsernames() != null && trip1.getShareWithUsernames().contains(username));
+        if (!isAllowed) {
+            return new ResponseDTO(StatusCodeEnum.UNAUTHORIZED.getStatusCode(),Constants.YOU_ARE_UNAUTHORIZED_TO_UPDATE_DETAIL,null);
+        }
+        if(fullUpdate) {
+            trip1.setAllowComment(tripDTO.getAllowComment());
+            trip1.setNumberOfMembers(tripDTO.getNumberOfMembers());
+            trip1.setUpdatedAt(LocalDateTime.now());
+            trip1.setTripName(tripDTO.getTripName());
+            trip1.setStartDate(tripDTO.getStartDate());
+            trip1.setEndDate(tripDTO.getEndDate());
+            trip1.setIsPrivate(tripDTO.getIsPrivate());
+            trip1.setIsPublic(tripDTO.getIsPublic());
+            trip1.setTripType(tripDTO.getTripType());
+        }else {
+            if(trip1.getAllowComment()!= null) trip1.setAllowComment(tripDTO.getAllowComment());
+            if(trip1.getNumberOfMembers()!= null)trip1.setNumberOfMembers(tripDTO.getNumberOfMembers());
+            trip1.setUpdatedAt(LocalDateTime.now());
+            if(trip1.getTripName()!= null)trip1.setTripName(tripDTO.getTripName());
+            if(trip1.getStartDate()!=null)trip1.setStartDate(tripDTO.getStartDate());
+            if(trip1.getEndDate() != null)trip1.setEndDate(tripDTO.getEndDate());
+            if(trip1.getIsPrivate()!=null)trip1.setIsPrivate(tripDTO.getIsPrivate());
+            if(trip1.getIsPublic()!=null)trip1.setIsPublic(tripDTO.getIsPublic());
+            if(trip1.getTripType()!=null)trip1.setTripType(tripDTO.getTripType());
+        }
+        if (tripDTO.getDestinations() != null) {
+            if (fullUpdate) {
+                // Replace all destinations
+                trip1.getDestinations().clear();
+                for (DestinationDTO destDto : tripDTO.getDestinations()) {
+                    trip1.getDestinations().add(Destination.builder()
+                            .from(destDto.getFrom())
+                            .to(destDto.getTo())
+                            .startDate(destDto.getStartDate())
+                            .endDate(destDto.getEndDate())
+                            .trip(trip1)
+                            .updatedAt(LocalDateTime.now())
+                            .build());
+                }
+            } else {
+                // Partial update: Append new destinations without removing old ones
+                for (DestinationDTO destDto : tripDTO.getDestinations()) {
+                    trip1.getDestinations().add(Destination.builder()
+                            .from(destDto.getFrom())
+                            .to(destDto.getTo())
+                            .startDate(destDto.getStartDate())
+                            .endDate(destDto.getEndDate())
+                            .trip(trip1)
+                            .updatedAt(LocalDateTime.now())
+                            .build());
+                }
+            }
+        }
+
+        tripRepository.save(trip1);
+        return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.TRIP_UPDATED_SUCCESSFULLY,null);
     }
 
 

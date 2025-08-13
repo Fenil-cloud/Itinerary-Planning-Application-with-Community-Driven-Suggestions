@@ -16,4 +16,6 @@ public interface TripService {
     ResponseDTO notifyForUpComingTrip(Long tripId);
 
     ResponseDTO getTripDetailsById(Long tripId);
+
+    ResponseDTO updateTrip(@Valid TripDTO tripDTO,Long tripId,String authHeader,boolean fullUpdate) throws ParseException;
 }
