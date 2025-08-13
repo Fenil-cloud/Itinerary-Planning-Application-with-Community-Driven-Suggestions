@@ -1,0 +1,52 @@
+server:
+  port: 8105
+
+
+spring:
+  kafka:
+    consumer:
+      enable-auto-commit: false
+      bootstrap-servers: localhost:9092
+      group-id: sugPollGroup
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: |
+          CommunitySuggestionPoll:com.ltineraryplanning.votingandpoll.Kafka.CommunitySuggestionPoll
+
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: CommunitySuggestionPoll:com.ltineraryplanning.votingandpoll.Kafka.CommunitySuggestionPoll,PollDetailsDTO:com.ltineraryplanning.votingandpoll.Kafka.producer.PollDetailsDTO,Options:com.ltineraryplanning.votingandpoll.Kafka.producer.Options,VoteDataDTO:com.ltineraryplanning.votingandpoll.Kafka.producer.VoteDataDTO
+
+          
+
+    listener:
+      ack-mode: manual_immediate
+
+  datasource:
+    url: jdbc:postgresql://localhost:5435/VotingAndPoll
+    username: dhruv
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    mongodb:
+      uri: mongodb://dhruv:1234@localhost:27018/DLQ?authSource=admin
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+kafkaTopic:
+  sugPoll: sugPollTopic
+  savePollDetails: savePollDetailsTopic
+  pollVote: pollVoteTopic
+
+

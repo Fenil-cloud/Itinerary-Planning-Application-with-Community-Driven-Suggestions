@@ -96,21 +96,9 @@ services:
     ports:
       - 1080:1080
       - 1025:1025
-
-  redis:
-    container_name: ms_redis1
-    image: redis:latest
-    ports:
-      - 6380:6379
-    volumes:
-      - redis-data:/data
-    networks:
-      - microservices-net
-    restart: unless-stopped
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
-    container_name: elasticsearch
+    container_name: ms_elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -127,7 +115,7 @@ services:
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.4
-    container_name: kibana
+    container_name: ms_kibana
     ports:
       - 5601:5601
     environment:
@@ -138,6 +126,44 @@ services:
       - microservices-net
     restart: unless-stopped
 
+  mongodb:
+    container_name: ms_mongo_db1
+    image: mongo
+    ports:
+      - 27018:27017
+    volumes:
+      - mongo:/data
+      # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=dhruv
+      - MONGO_INITDB_ROOT_PASSWORD=1234
+      - MONGO_INITDB_DATABASE=customer
+    networks:
+      - microservices-net
+
+  mongo-express:
+    container_name: ms_mongo_express1
+    image: mongo-express
+    restart: always
+    ports:
+       - 8081:8081
+    environment:
+       - ME_CONFIG_MONGODB_ADMINUSERNAME=dhruv
+       - ME_CONFIG_MONGODB_ADMINPASSWORD=1234
+       - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+       - microservices-net
+
+  redis:
+    container_name: ms_redis1
+    image: redis:latest
+    ports:
+      - 6380:6379
+    volumes:
+      - redis-data:/data
+    networks:
+      - microservices-net
+    restart: unless-stopped
 networks:
   microservices-net:
     driver: bridge
@@ -146,9 +172,8 @@ volumes:
   postgres:
   pgadmin:
   redis-data:
-  elasticsearch-data:
-  # mongo:
+  mongo:
 
   # redis-data-secondary:
-
+  # elasticsearch-data:
   # uptime-kuma-data:

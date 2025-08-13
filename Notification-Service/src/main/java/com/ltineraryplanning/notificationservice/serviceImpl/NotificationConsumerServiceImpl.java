@@ -1,9 +1,7 @@
 package com.ltineraryplanning.notificationservice.serviceImpl;
 
-import com.ltineraryplanning.notificationservice.dto.EmailAndFirstNameDTO;
 import com.ltineraryplanning.notificationservice.record.AuthDto;
-import com.ltineraryplanning.notificationservice.record.NotificationDTO;
-
+import com.ltineraryplanning.notificationservice.record.TripDto;
 import com.ltineraryplanning.notificationservice.service.EmailService;
 import com.ltineraryplanning.notificationservice.service.NotificationConsumerService;
 import jakarta.mail.MessagingException;
@@ -37,21 +35,20 @@ public class NotificationConsumerServiceImpl implements NotificationConsumerServ
 
     @KafkaListener(topics = "${kafkaTopic.trip}")
     @Override
-    public void consumeUpcomingTripEmailTopic(NotificationDTO notificationDTO) throws MessagingException {
-        log.info("Consuming the message from Trip-Topic:: {} ",notificationDTO);
-        for (EmailAndFirstNameDTO recipient : notificationDTO.emailAndFirstName()) {
-            try {
-                emailService.sendUpcomingTripNotification(
-                        notificationDTO.tripName(),        // tripName
-                        recipient.getFirstName(),          // fname
-                        notificationDTO.destinations(),    // destinations
-                        notificationDTO.tripStartDate(),   // startDate
-                        notificationDTO.tripEndDate(),     // endDate
-                        recipient.getEmail()
-                );
-            } catch (MessagingException exception) {
-                log.error("Email sending failed for {}... {}", recipient.getEmail(), exception.getMessage());
-            }
+    public void consumeUpcomingTripEmailTopic(TripDto tripDto) throws MessagingException {
+        log.info("Consuming the message from Trip-Topic:: {} ",tripDto);
+        try {
+            emailService.sendUpcomingTripNotification(
+                    tripDto.email(),
+                    tripDto.destination(),
+                    tripDto.fname(),
+                    tripDto.startDate(),
+                    tripDto.endDate(),
+                    tripDto.tripName()
+            );
+        }catch (MessagingException exception){
+            log.error("Email sending failed...{}",exception.getMessage());
         }
+
     }
 }

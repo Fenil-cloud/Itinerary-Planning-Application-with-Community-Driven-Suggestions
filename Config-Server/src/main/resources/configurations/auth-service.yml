@@ -20,7 +20,7 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5435/users
-    username: ltineraryplanning
+    username: dhruv
     password: 1234
     driver-class-name: org.postgresql.Driver
 
@@ -72,7 +72,7 @@ resilience4j:
 
   ratelimiter:
     instances:
-      verifyRateLimiter:
+      authRateLimiter:
         limit-refresh-period: 5s
         limit-for-period: 10
         timeout-duration: 1s

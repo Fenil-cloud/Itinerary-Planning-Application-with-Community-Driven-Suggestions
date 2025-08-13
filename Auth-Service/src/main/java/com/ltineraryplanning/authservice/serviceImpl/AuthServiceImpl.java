@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Create user
         Map<String,Object> user = new HashMap<>();
-        user.put("username",request.getUsername());
+        user.put("username",request.getUsername().toLowerCase());
         user.put("enabled",true);
         user.put("email",request.getEmail());
         user.put("firstName", request.getFirstName());  // <-- Add this
@@ -129,7 +129,7 @@ public class AuthServiceImpl implements AuthService {
             UserOtp otp = new UserOtp();
             String otp_number = generateOTP();
 //            OTP
-           smsService.sendOTP(request.getPhoneNumber(), "OTP "+otp_number+" valid for 5 minutes.");
+//            smsService.sendOTP(request.getPhoneNumber(), "OTP "+otp_number+" valid for 5 minutes.");
             System.err.println(otp_number);
 //            listOTP.add(otp);
             otp.setOTP(otp_number);
@@ -225,7 +225,7 @@ public class AuthServiceImpl implements AuthService {
                 MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
                 body.add("client_id", "ltinerary-planning");
                 body.add("client_secret", clientSecret);
-                body.add("username", request.getUsername());
+                body.add("username", request.getUsername().toLowerCase());
                 body.add("password", request.getPassword());
                 body.add("grant_type", "password");
 
@@ -416,14 +416,6 @@ public class AuthServiceImpl implements AuthService {
         } else {
             throw new UserNotFoundException("USER NOT FOUND");
         }
-    }
-
-    @Override
-    public List<EmailAndFirstNameDTO> getEmailAndFirstName(List<String> usernames) {
-        List<Object[]> list = userRepo.findEmailAndFirstNameByUsernames(usernames);
-        return list.stream()
-                .map(obj -> new EmailAndFirstNameDTO((String) obj[0], (String) obj[1]))
-                .toList();
     }
 }
 

@@ -1,19 +1,20 @@
 package com.ltineraryplanning.authservice.controller;
 
-import com.ltineraryplanning.authservice.dto.EmailAndFirstNameDTO;
 import com.ltineraryplanning.authservice.dto.LoginRequest;
 import com.ltineraryplanning.authservice.dto.RegisterRequest;
 import com.ltineraryplanning.authservice.dto.ResponseDTO;
 import com.ltineraryplanning.authservice.service.AuthService;
+import com.ltineraryplanning.authservice.service.HelperService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -23,7 +24,12 @@ public class AuthController {
     @Autowired
     AuthService authService;
 
+    @Autowired
+    HelperService helperService;
+
     @PostMapping("register")
+    @CircuitBreaker(name = "authservice", fallbackMethod = "registerFallBack")
+    @RateLimiter(name = "authRateLimiter", fallbackMethod = "registerLimitFallBack")
     public ResponseDTO register(@Valid @RequestBody RegisterRequest registerRequest, Errors errors) {
         //log.info("Request received");
         if (errors.hasErrors()) {
@@ -31,6 +37,16 @@ public class AuthController {
         }
         return authService.registerUser(registerRequest);
     }
+
+    public ResponseDTO registerFallBack(@Valid @RequestBody RegisterRequest registerRequest, Errors errors,Throwable ex) {
+        return new ResponseDTO("503", "Service not available", null);
+    }
+
+    public ResponseDTO registerLimitFallBack(@Valid @RequestBody RegisterRequest registerRequest, Errors errors,Throwable ex) {
+        return new ResponseDTO("503", "Service not available", null);
+    }
+
+
 
     @PostMapping("login")
     @CircuitBreaker(name = "authservice",fallbackMethod = "loginFallBack")
@@ -52,8 +68,8 @@ public class AuthController {
         return authService.verifyMobile(auth,otp);
     }
 
-    @PostMapping("getEmailAndFirstName")
-    public List<EmailAndFirstNameDTO> getEmailAndFirstName(@RequestBody List<String> usernames){
-        return authService.getEmailAndFirstName(usernames);
+    @GetMapping("username")
+    public String getUserName(@RequestHeader("Authorization") String auth) throws ParseException {
+        return helperService.getUserName(auth);
     }
 }

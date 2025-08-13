@@ -1,9 +1,13 @@
-//package com.ltineraryplanning.notificationservice.record;
+package com.ltineraryplanning.notificationservice.record;
 
 import java.time.LocalDate;
-import java.util.List;
 
-//public record TripDto(
-//  List<EmailAndFirstNameDTO>
-//) {
-//}
+public record TripDto(
+        String email,
+        String tripName,
+        String fname,
+        LocalDate startDate,
+        LocalDate endDate,
+        String destination
+) {
+}

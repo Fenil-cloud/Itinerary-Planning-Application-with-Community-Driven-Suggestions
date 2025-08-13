@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upcoming Trip Notification</title>
+    <title>Title</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -32,28 +32,13 @@
         .content {
             margin-bottom: 30px;
         }
-        .footer {
+         .footer {
             text-align: center;
             margin-top: 40px;
             padding-top: 20px;
             border-top: 1px solid #eee;
             font-size: 14px;
             color: #666;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
         }
     </style>
 </head>
@@ -67,32 +52,11 @@
         <p>Hello, <strong th:text="${fname}">John Doe</strong></p>
 
         <div>
-            <p>We’re excited about your upcoming trip <strong><span th:text="${tripName}"></span></strong>.</p>
+            <p>We’re excited about your upcoming trip<strong><span th:text = "${tripName}"></span></strong> to <strong><span th:text="${destinationName}"></span></strong>.</p>
             <p>Trip Dates: <span th:text="${startDate}"></span> to <span th:text="${endDate}"></span></p>
         </div>
-
-        <div>
-            <h3>Destinations</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="dest : ${destinations}">
-                    <td th:text="${dest.from}">From City</td>
-                    <td th:text="${dest.to}">To City</td>
-                    <td th:text="${dest.startDate}">2025-08-01</td>
-                    <td th:text="${dest.endDate}">2025-08-05</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
+
 
     <div class="footer">
         <p>If you have any questions or need assistance, please contact our support team.</p>
