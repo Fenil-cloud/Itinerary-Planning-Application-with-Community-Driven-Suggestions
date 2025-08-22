@@ -1,5 +1,7 @@
 package com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.dto;
 
-public record ResponseDTO(String status,String message,Object object){
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ResponseDTO(String status, String message, @JsonProperty("data") Object object){
 
 }

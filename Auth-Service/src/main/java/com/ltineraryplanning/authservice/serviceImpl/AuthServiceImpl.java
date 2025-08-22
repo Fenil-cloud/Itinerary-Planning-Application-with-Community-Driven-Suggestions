@@ -193,6 +193,7 @@ public class AuthServiceImpl implements AuthService {
         userVerification.setVerified(false);
         userVerification.setExpiryDate(LocalDateTime.now().plusHours(24));
         userVerification.setToken(token);
+        userVerification.setType("verify");
         userVerification.setEmail(email);
         userVerification.setSendAt(LocalDateTime.now());
         repo.save(userVerification);
@@ -266,7 +267,9 @@ public class AuthServiceImpl implements AuthService {
                 return new ResponseDTO("fail", "Login failed", obj);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                return null;
+                System.out.println("Invalid login credentials");
+
+                return new ResponseDTO("400","Invalid login credentials",null);
 
             }
         }
@@ -416,6 +419,57 @@ public class AuthServiceImpl implements AuthService {
         } else {
             throw new UserNotFoundException("USER NOT FOUND");
         }
+    }
+
+
+
+    @Override
+    public ResponseDTO resetPassword(String uid, String token, NewPasswordDTO newPasswordDTO) {
+        Optional<UserVerification> userVerification = repo.findById(uid);
+        if(userVerification.isEmpty()){
+            return new ResponseDTO("200","invalid url",null);
+        }
+        if(!userVerification.get().getToken().equals(token) || userVerification.get().getIsCheck()){
+            return new ResponseDTO("200","invalid url",null);
+        }
+        if(!userVerification.get().getExpiryDate().isAfter(LocalDateTime.now())){
+            return new ResponseDTO("200","Link expired",null);
+        }
+        if(!newPasswordDTO.getPassword().equals(newPasswordDTO.getConfirmPassword())){
+            return new ResponseDTO("200","Password and Confirm password does not match!",200);
+
+        }
+        if(userVerification.get().getType().equals("reset")){
+            String url = keycloakServerUrl + "/admin/realms/" + realm + "/users/" + uid + "/reset-password";
+            Map<String, Object> body = new HashMap<>();
+            body.put("type", "password");
+            body.put("temporary", false);  // set to true if you want user to change it on next login
+            body.put("value", newPasswordDTO.getPassword());
+
+            String adminToken  = getAdminToken();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(adminToken);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            ResponseEntity<Void> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    entity,
+                    Void.class
+            );
+            if (response.getStatusCode() == HttpStatus.NO_CONTENT) {
+                userVerification.get().setIsCheck(true);
+                repo.save(userVerification.get());
+                return new ResponseDTO(response.getStatusCode().toString(),"Password reset success",null);
+            } else {
+                return new ResponseDTO(response.getStatusCode().toString(),"Password reset failed",null);
+            }
+        }
+
+
+        return null;
     }
 }
 

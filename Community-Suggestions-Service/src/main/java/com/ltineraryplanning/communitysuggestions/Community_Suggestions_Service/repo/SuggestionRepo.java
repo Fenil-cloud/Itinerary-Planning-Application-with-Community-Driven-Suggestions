@@ -8,4 +8,5 @@ import java.util.List;
 public interface SuggestionRepo extends MongoRepository<Suggestion,String> {
 
     List<Suggestion> findByUserId(String userId);
+    List<Suggestion> findByIsEmbeddedFalse();
 }

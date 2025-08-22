@@ -35,12 +35,12 @@ KafkaTopic:
 
 
 keycloak:
-  server-url: http://localhost:9098
-  realm: Itinerary-planning
-  client-id: ltinerary-planning
-  client-secret: 28od1BvGOCnP2wfgE7BRhYQLjw47PZD7
-  admin-username: admin
-  admin-password: admin
+  server-url: ${KEYCLOAK_SERVER_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SERVER}
+  admin-username: ${KEYCLOAK_ADMIN}
+  admin-password: ${KEYCLOAK_PASSWORD}
 
 management:
   health:

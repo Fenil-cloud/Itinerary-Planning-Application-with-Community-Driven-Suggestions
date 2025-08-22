@@ -16,4 +16,12 @@ public class ExceptionHandlerAdvice {
     public ResponseDTO handlerSuggestionNotFoundException(SuggestionNotFoundException exception){
         return new ResponseDTO("400",exception.getMessage(),null);
     }
+
+
+    @ExceptionHandler(TripNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseDTO handlerSTripNotFoundException(TripNotFoundException exception){
+        return new ResponseDTO("400",exception.getMessage(),null);
+    }
 }

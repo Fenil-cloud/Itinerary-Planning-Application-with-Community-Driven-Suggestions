@@ -18,4 +18,6 @@ public interface TripService {
     ResponseDTO getTripDetailsById(Long tripId);
 
     ResponseDTO updateTrip(@Valid TripDTO tripDTO,Long tripId,String authHeader,boolean fullUpdate) throws ParseException;
+
+    ResponseDTO allTrip();
 }

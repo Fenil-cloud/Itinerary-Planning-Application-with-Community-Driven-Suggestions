@@ -33,11 +33,3 @@ server:
 kafkaTopic:
   topic: authTopic
   trip: tripTopic
-
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    display-request-duration: true
-    persist-authorization: true
-    try-it-out-enabled: true

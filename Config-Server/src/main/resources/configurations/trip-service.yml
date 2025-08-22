@@ -1,22 +1,14 @@
 server:
   port: 8050
+
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
     producer:
+      bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      enable-auto-commit: true
-      group-id: test-service
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring:
-          json:
-            trusted:
-              packages: "*"
+        spring.json.type.mapping: NotificationDTO:com.ltineraryplanning.tripservice.dto.NotificationDTO
 
   datasource:
     url: jdbc:postgresql://localhost:5435/trips
@@ -29,55 +21,20 @@ spring:
       ddl-auto: update
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  data:
-    mongodb:
-      uri: mongodb://fenil:1234@localhost:27018/tripdb?authSource=admin
-  ai:
-    openai:
-      api-key: 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
-      chat:
-        options:
-          model: gpt-3.5-turbo
-      embedding:
-        options:
-          model: text-embedding-3-small
-    vectorstore:
-      qdrant:
-        base-url: http://localhost:6333
-        collection-name: tripDesc
-        initialize-schema: true
+
 #  h2:
 #    console:
 #      enabled: true
 #      path: /h2-console
 #  datasource:
-#    url: jdbc:h2:file:C:\\Users\\Fenil\\test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#    url: jdbc:h2:mem:trips
 #    username: sa
 #    password: admin
 #    driver-class-name: org.h2.Driver
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    display-request-duration: true
-    persist-authorization: true
-    try-it-out-enabled: true
 
 kafkaTopic:
   trip: tripTopic
-  createEventTopic: create-e
-#  updateEventTopic: update-e
-#  shareEventForUpdate: share-e
 
 application:
   config:
-    gateway-url : http://localhost:8222
-
-#logging:
-#  level:
-#    org.apache.kafka.clients.consumer: DEBUG
-#    org.springframework.kafka.listener: DEBUG
-
+    gateway-url : "http://localhost:8222"

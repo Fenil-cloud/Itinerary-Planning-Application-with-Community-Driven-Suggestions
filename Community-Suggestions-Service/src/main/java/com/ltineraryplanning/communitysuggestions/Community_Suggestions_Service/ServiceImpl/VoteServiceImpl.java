@@ -24,7 +24,7 @@ public class VoteServiceImpl implements VoteService {
 
     @Autowired
     private ExtractTokenService tokenService;
-
+    
 
 
 

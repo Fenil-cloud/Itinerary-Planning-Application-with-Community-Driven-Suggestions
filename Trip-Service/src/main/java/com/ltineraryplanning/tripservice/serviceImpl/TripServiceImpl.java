@@ -321,5 +321,11 @@ public class TripServiceImpl implements TripService {
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.TRIP_UPDATED_SUCCESSFULLY,null);
     }
 
+    @Override
+    public ResponseDTO allTrip() {
+        List<Trip> trips = tripRepository.findAll();
+        return new ResponseDTO("200","all trips",trips);
+    }
+
 
 }

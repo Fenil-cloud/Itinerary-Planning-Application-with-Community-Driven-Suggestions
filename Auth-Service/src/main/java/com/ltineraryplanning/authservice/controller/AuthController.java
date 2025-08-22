@@ -1,6 +1,7 @@
 package com.ltineraryplanning.authservice.controller;
 
 import com.ltineraryplanning.authservice.dto.LoginRequest;
+import com.ltineraryplanning.authservice.dto.NewPasswordDTO;
 import com.ltineraryplanning.authservice.dto.RegisterRequest;
 import com.ltineraryplanning.authservice.dto.ResponseDTO;
 import com.ltineraryplanning.authservice.service.AuthService;
@@ -71,5 +72,15 @@ public class AuthController {
     @GetMapping("username")
     public String getUserName(@RequestHeader("Authorization") String auth) throws ParseException {
         return helperService.getUserName(auth);
+    }
+
+    @PostMapping("reset/{username}")
+    public ResponseDTO resetPasswordLink(@PathVariable String username) throws ParseException {
+        return helperService.sendResetLink(username);
+    }
+
+    @PostMapping("reset/{uid}/{token}")
+    public ResponseDTO resetPassword(@PathVariable String uid, @PathVariable String token, @RequestBody NewPasswordDTO newPasswordDTO) throws ParseException {
+        return authService.resetPassword(uid,token,newPasswordDTO);
     }
 }

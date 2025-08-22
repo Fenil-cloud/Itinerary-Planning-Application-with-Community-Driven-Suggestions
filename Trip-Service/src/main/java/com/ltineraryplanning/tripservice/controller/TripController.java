@@ -9,10 +9,6 @@ import com.ltineraryplanning.tripservice.service.TripService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.graphql.data.method.annotation.Argument;
-//import org.springframework.graphql.data.method.annotation.MutationMapping;
-//import org.springframework.graphql.data.method.annotation.QueryMapping;
-//import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.w3c.dom.stylesheets.LinkStyle;
@@ -23,7 +19,6 @@ import java.util.List;
 @RestController
 //@Controller
 @RequestMapping("/api/v1/trip/")
-@CrossOrigin(origins = "http://localhost:8222")
 public class TripController {
 
     @Autowired
@@ -82,4 +77,9 @@ public class TripController {
     public ResponseDTO partialUpdateTrip(@Valid @RequestBody TripDTO tripDTO,@PathVariable("tripId") Long tripId,@RequestHeader("Authorization") String authHeader) throws ParseException {
         return tripService.updateTrip(tripDTO,tripId,authHeader,false);
    }
+
+    @GetMapping("get-all")
+    public ResponseDTO getAll() throws ParseException {
+        return tripService.allTrip();
+    }
 }

@@ -21,6 +21,9 @@ public class AuthLinkProducer {
     @Value("${kafkaTopic.redisTopic}")
     private String redisTopic;
 
+    @Value("${kafkaTopic.reset}")
+    private String resetTopic;
+
     public void sendAuthLink(AuthDto authDto){
 //        log.info("Topic : {}", topic);
 //        log.info("Sending notification for Auth <{}>",authDto);
@@ -37,6 +40,16 @@ public class AuthLinkProducer {
         Message<RedisTokenDto> message = MessageBuilder
                 .withPayload(redisTokenDto)
                 .setHeader(KafkaHeaders.TOPIC,redisTopic)
+                .build();
+        kafkaTemplate.send(message);
+    }
+
+    public void sendResetLink(ResetLink resetLink){
+        log.info("Reset Topic produced : {} ",resetLink);
+//        log.info("Sending refresh token :: {}",redisTokenDto.toString());
+        Message<ResetLink> message = MessageBuilder
+                .withPayload(resetLink)
+                .setHeader(KafkaHeaders.TOPIC,resetTopic)
                 .build();
         kafkaTemplate.send(message);
     }
