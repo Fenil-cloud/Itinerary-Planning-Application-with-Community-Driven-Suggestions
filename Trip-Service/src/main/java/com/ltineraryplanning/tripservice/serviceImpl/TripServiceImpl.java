@@ -1,5 +1,11 @@
 package com.ltineraryplanning.tripservice.serviceImpl;
 
+
+
+import com.ltineraryplanning.CQRS.entity.DestinationView;
+import com.ltineraryplanning.CQRS.entity.TripSharedEvent;
+import com.ltineraryplanning.CQRS.entity.TripView;
+import com.ltineraryplanning.CQRS.repository.CQRS_TripRepository;
 import com.ltineraryplanning.tripservice.client.AuthServiceClient;
 import com.ltineraryplanning.tripservice.constants.Constants;
 import com.ltineraryplanning.tripservice.dto.*;
@@ -11,7 +17,10 @@ import com.ltineraryplanning.tripservice.repository.TripRepository;
 import com.ltineraryplanning.tripservice.service.EsService;
 import com.ltineraryplanning.tripservice.service.TripService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.Embedding;
+import org.springframework.ai.embedding.EmbeddingModel;
+import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,9 +55,26 @@ public class TripServiceImpl implements TripService {
     @Value("${kafkaTopic.trip}")
     private String topic;
 
+    @Value("${kafkaTopic.createEventTopic}")
+    private String createEventTopic;
+
+//    @Value("${kafkaTopic.shareEventForUpdate}")
+//    private String shareEventForUpdate;
+//
+//
+//    @Value("${kafkaTopic.updateEventTopic}")
+//    private String updateEventTopic;
     @Autowired
     private EsService esService;
 
+    @Autowired
+    private CQRS_TripRepository cqrs_tripRepository;
+
+    @Autowired
+    private QdrantVectorStore qdrantVectorStore;
+
+    @Autowired
+    private EmbeddingModel embeddingModel;
     @Override
     public ResponseDTO createTrip(TripDTO tripDTO,String auth) throws ParseException {
     Map<String,Object> map =  extractTokenService.extractValue(auth);
@@ -68,12 +94,70 @@ public class TripServiceImpl implements TripService {
                 })
                 .collect(Collectors.toList());
         trip.setDestinations(destinations);
-        tripRepository.save(trip);
+       Trip saveTrip =  tripRepository.save(trip);
         EsSearchItineraryDTO esSearchItineraryDTO = EsSearchItineraryDTO.builder()
                 .tripNames(Set.of(tripDTO.getTripName()))
                 .build();
         esService.saveTestToElastic(esSearchItineraryDTO);
-        return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(), Constants.TRIP_CREATED_SUCCESSFULLY,trip.getTripId());
+        StringBuilder tripText = new StringBuilder();
+        tripText.append("Trip Name: ").append(saveTrip.getTripName()).append("\n");
+        tripText.append("Trip Type: ").append(saveTrip.getTripType()).append("\n");
+        tripText.append("Number of Members: ").append(saveTrip.getNumberOfMembers()).append("\n");
+        tripText.append("Start Date: ").append(saveTrip.getStartDate()).append("\n");
+        tripText.append("End Date: ").append(saveTrip.getEndDate()).append("\n");
+        tripText.append("Destinations:\n");
+
+        for (Destination dest : saveTrip.getDestinations()) {
+            tripText.append(" - From: ").append(dest.getFrom())
+                    .append(", To: ").append(dest.getTo())
+                    .append(", StartDate: ").append(dest.getStartDate())
+                    .append(", EndDate: ").append(dest.getEndDate())
+                    .append("\n");
+        }
+
+//        List<Embedding> embeddings = embeddingModel.embed(List.of(tripText.toString()));
+//        Embedding embedding = embeddings.get(0);
+
+        float[] embedding = embeddingModel.embed(tripText.toString());
+        // Store in Qdrant
+        Document doc = new Document(
+                tripText.toString(),   // content
+                Map.of("tripId", saveTrip.getTripId().toString())  // metadata
+        );
+        qdrantVectorStore.add(List.of(doc));
+        List<DestinationView> destinationViews = saveTrip.getDestinations().stream()
+                .map(dest -> DestinationView.builder()
+                        .destinationId(dest.getDestinationId())
+                        .from(dest.getFrom())
+                        .to(dest.getTo())
+                        .startDate(dest.getStartDate())
+                        .endDate(dest.getEndDate())
+                        .createdAt(dest.getCreatedAt())
+                        .updatedAt(dest.getUpdatedAt())
+                        .startDate(dest.getStartDate())
+                        .endDate(dest.getEndDate())
+                        .tripId(dest.getTrip().getTripId())
+                        .build())
+                .collect(Collectors.toList());
+        TripView tripView = TripView.builder()
+                .numberOfMembers(saveTrip.getNumberOfMembers())
+                .tripName(saveTrip.getTripName())
+                .tripType(saveTrip.getTripType())
+                .allowComment(saveTrip.getAllowComment())
+                .createdAt(saveTrip.getCreatedAt())
+                .endDate(saveTrip.getEndDate())
+                .isPrivate(saveTrip.getIsPrivate())
+                .isPublic(saveTrip.getIsPublic())
+                .shareWithUsernames(saveTrip.getShareWithUsernames())
+                .tripId(saveTrip.getTripId())
+                .userId(saveTrip.getUserId())
+                .updatedAt(saveTrip.getUpdatedAt())
+                .startDate(saveTrip.getStartDate())
+                .destinations(destinationViews)
+                .build();
+        kafkaTemplate.send(createEventTopic,tripView);
+        log.info("kafka Template send message {} :" + tripView);
+        return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(), Constants.TRIP_CREATED_SUCCESSFULLY,saveTrip.getTripId());
     }
 
     @Override
@@ -81,7 +165,13 @@ public class TripServiceImpl implements TripService {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
         trip.getShareWithUsernames().addAll(usernames);
-        tripRepository.save(trip);
+        Trip savedTrip = tripRepository.save(trip);
+        TripSharedEvent tripSharedEvent = TripSharedEvent.builder()
+                .tripId(savedTrip.getTripId())
+                .shareWithUsernames(savedTrip.getShareWithUsernames())
+                .build();
+        // Send event to Kafka
+        kafkaTemplate.send(createEventTopic, tripSharedEvent);
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.TRIP_SHARED_SUCCESSFULLY,null);
     }
 
@@ -123,8 +213,10 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public ResponseDTO getTripDetailsById(Long tripId) {
-        Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+//        todo uncomment for cqrs design pattern
+        TripView trip = cqrs_tripRepository.findById(tripId).orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+//        Trip trip = tripRepository.findById(tripId)
+//                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.DATA_FETCHED_SUCCESSFULLY,trip);
     }
 
@@ -194,7 +286,38 @@ public class TripServiceImpl implements TripService {
             }
         }
 
-        tripRepository.save(trip1);
+
+       Trip saveTrip =  tripRepository.save(trip1);
+        List<DestinationView> destinationViews = saveTrip.getDestinations().stream()
+                .map(dest -> DestinationView.builder()
+                        .destinationId(dest.getDestinationId())
+                        .from(dest.getFrom())
+                        .to(dest.getTo())
+                        .startDate(dest.getStartDate())
+                        .endDate(dest.getEndDate())
+                        .createdAt(dest.getCreatedAt())
+                        .updatedAt(dest.getUpdatedAt())
+                        .startDate(dest.getStartDate())
+                        .endDate(dest.getEndDate())
+                        .build())
+                .collect(Collectors.toList());
+                TripView tripView = TripView.builder()
+                .numberOfMembers(saveTrip.getNumberOfMembers())
+                .tripName(saveTrip.getTripName())
+                .tripType(saveTrip.getTripType())
+                .allowComment(saveTrip.getAllowComment())
+                .createdAt(saveTrip.getCreatedAt())
+                .endDate(saveTrip.getEndDate())
+                .isPrivate(saveTrip.getIsPrivate())
+                .isPublic(saveTrip.getIsPublic())
+                .shareWithUsernames(saveTrip.getShareWithUsernames())
+                .tripId(saveTrip.getTripId())
+                .userId(saveTrip.getUserId())
+                .updatedAt(saveTrip.getUpdatedAt())
+                .startDate(saveTrip.getStartDate())
+                .destinations(destinationViews)
+                .build();
+        kafkaTemplate.send(createEventTopic,tripView);
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.TRIP_UPDATED_SUCCESSFULLY,null);
     }
 

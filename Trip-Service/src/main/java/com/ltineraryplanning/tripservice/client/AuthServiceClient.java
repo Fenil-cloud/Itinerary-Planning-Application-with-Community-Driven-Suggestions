@@ -13,6 +13,8 @@ import java.util.List;
         name = "auth-service" ,
         url = "${application.config.gateway-url}"
 )
+
+//@FeignClient(name = "GATEWAY-SERVICE")
 public interface AuthServiceClient {
     @PostMapping("/api/v1/auth/getEmailAndFirstName")
     List<EmailAndFirstNameDTO> getEmailAndFirstName(@RequestBody List<String> usernames);

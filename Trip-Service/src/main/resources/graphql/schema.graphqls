@@ -1,0 +1,81 @@
+## =========================
+## Enums
+## =========================
+#enum TripType {
+#    SOLO_TRIP
+#    BUSINESS_TRIP
+#    FAMILY_TRIP
+#}
+#
+#
+## =========================
+## Destination Type
+## =========================
+#type Destination {
+#    destinationId: ID!
+#    from: String!
+#    to: String!
+#    startDate: String
+#    endDate: String
+#    createdAt: String
+#    updatedAt: String
+#}
+#
+#
+## =========================
+## Trip Type
+## =========================
+#type Trip {
+#    tripId: ID!
+#    userId: String!
+#    numberOfMembers:Int!
+#    tripName: String!
+#    startDate: String
+#    endDate: String
+#    allowComment: Boolean
+#    createdAt: String
+#    updatedAt: String
+#    isPublic: Boolean
+#    isPrivate: Boolean
+#    tripType: TripType
+#    destinations: [Destination!]!
+#    shareWithUsernames: [String!]!
+#}
+#
+## =========================
+## Queries
+## =========================
+#type Query {
+#    getTripById(tripId: ID!): ResponseDTO
+##    getAllTrips: [Trip!]!
+#}
+#
+#input DestinationInput {
+#    from: String!
+#    to: String!
+#    startDate: String!
+#    endDate: String!
+#}
+#
+#input TripInput {
+#    numberOfMembers: Int!
+#    tripName: String!
+#    startDate: String!
+#    endDate: String!
+#    isPublic: Boolean!
+#    allowComment: Boolean!
+#    isPrivate: Boolean!
+#    tripType: TripType!
+#    destinations: [DestinationInput!]!
+#    shareWithUsernames: [String!]
+#}
+#
+#type ResponseDTO {
+#    status: String
+#    message: String
+#    data: Trip
+#}
+#
+#type Mutation {
+#    createTrip(trip: TripInput!, auth: String!): ResponseDTO
+#}

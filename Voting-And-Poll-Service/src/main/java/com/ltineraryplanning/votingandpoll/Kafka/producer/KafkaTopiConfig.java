@@ -26,7 +26,7 @@ public class KafkaTopiConfig {
     public NewTopic pollVote(){
         return TopicBuilder.name(voteTopic)
                 .partitions(4)
-                .replicas(2)
+                .replicas(1)
                 .build();
     }
 }

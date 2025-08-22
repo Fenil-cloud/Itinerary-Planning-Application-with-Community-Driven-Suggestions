@@ -9,6 +9,10 @@ import com.ltineraryplanning.tripservice.service.TripService;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.graphql.data.method.annotation.Argument;
+//import org.springframework.graphql.data.method.annotation.MutationMapping;
+//import org.springframework.graphql.data.method.annotation.QueryMapping;
+//import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.w3c.dom.stylesheets.LinkStyle;
@@ -17,7 +21,9 @@ import java.text.ParseException;
 import java.util.List;
 
 @RestController
+//@Controller
 @RequestMapping("/api/v1/trip/")
+@CrossOrigin(origins = "http://localhost:8222")
 public class TripController {
 
     @Autowired
@@ -26,7 +32,9 @@ public class TripController {
     @Autowired
     private EsService esService;
 
+    //todo put @Valid @RequestBody and @RequestHeader("Authorization")
     @PostMapping("createTrip")
+//    @MutationMapping("createTrip")
     public ResponseDTO createTrip(@Valid @RequestBody TripDTO tripDTO, Errors errors ,@RequestHeader("Authorization") String auth) throws ParseException {
         if(errors.hasErrors()){
             return new ResponseDTO(StatusCodeEnum.BAD_REQUEST.getStatusCode(),errors.getAllErrors().get(0).getDefaultMessage(),null);
@@ -34,6 +42,7 @@ public class TripController {
         else{
             return tripService.createTrip(tripDTO,auth);
         }
+//        return tripService.createTrip(tripDTO, auth);
     }
 
     @PostMapping("{tripId}/share")
@@ -46,8 +55,11 @@ public class TripController {
         return tripService.notifyForUpComingTrip(tripId);
     }
 
-    @GetMapping("{tripId}")
-    public ResponseDTO getTripDetailsById(@PathVariable Long tripId){
+
+    //todo put @Argument
+//    @QueryMapping("getTripById")
+        @GetMapping("{tripId}")
+    public ResponseDTO getTripDetailsById(@PathVariable("") Long tripId){
         return tripService.getTripDetailsById(tripId);
     }
 

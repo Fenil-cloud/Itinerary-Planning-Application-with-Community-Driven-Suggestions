@@ -20,7 +20,7 @@ public class KafkaTopicConfig {
     public NewTopic authTopic(){
         return TopicBuilder.name(topic)
                 .partitions(3)
-                .replicas(2)
+                .replicas(1)
                 .build();
     }
 }

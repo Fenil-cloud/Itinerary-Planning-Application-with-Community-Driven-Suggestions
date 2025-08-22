@@ -32,15 +32,15 @@ public class KafkaConsumer {
 
         int retries = 3;
         String Exc = "";
-        log.info("Consuming Suggestion-Topic:: {} ", suggestionPoll);
+        //log.info("Consuming Suggestion-Topic:: {} ", suggestionPoll);
         while (retries-- > 0) {
             try {
             service.SaveNewPoll(suggestionPoll);
             ack.acknowledge();
-            log.info("message proceeded success!");
+           // log.info("message proceeded success!");
             break;
         }catch (Exception e) {
-                log.warn("Error While Consuming Topic :: {}", e.getMessage());
+                //log.warn("Error While Consuming Topic :: {}", e.getMessage());
                 Exc = e.getMessage();
                 DLQ dlq = new DLQ();
                 dlq.setTittle("SugPoll.DLQ");

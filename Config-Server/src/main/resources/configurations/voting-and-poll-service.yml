@@ -30,7 +30,7 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5435/VotingAndPoll
-    username: dhruv
+    username: ltineraryplanning
     password: 1234
     driver-class-name: org.postgresql.Driver
 

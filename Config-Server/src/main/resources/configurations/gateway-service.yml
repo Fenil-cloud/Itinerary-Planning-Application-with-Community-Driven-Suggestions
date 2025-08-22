@@ -21,6 +21,10 @@ spring:
               uri: lb:http://VOTING-AND-POLL-SERVICE
               predicates:
                 - Path=/api/v1/polls/**, /api/v1/votes/**
+            - id: trip-service
+              uri: lb:http://TRIP-SERVICE
+              predicates:
+                - Path=/api/v1/trip/**, /swagger-ui/**, /v3/api-docs/**
 #            - id: download-service
 #              uri: lb:http://DOWNLOAD-SERVICE
 #              predicates:
@@ -65,12 +69,12 @@ kafkaTopic:
   topic: authRedisToken
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SERVER}
-  admin-username: ${KEYCLOAK_ADMIN}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  server-url: http://localhost:9098
+  realm: Itinerary-planning
+  client-id: ltinerary-planning
+  client-secret: 28od1BvGOCnP2wfgE7BRhYQLjw47PZD7
+  admin-username: admin
+  admin-password: admin
 
 
 management:
@@ -85,3 +89,24 @@ management:
     health:
       show-details: ALWAYS
 
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html   # serve swagger at /swagger-ui.html
+    display-request-duration: true
+    persist-authorization: true
+    try-it-out-enabled: true
+    urls:
+      - name: trip-service
+        url: http://localhost:8050/v3/api-docs
+#      - name: restaurant-service
+#        url: http://localhost:8050/v3/api-docs
+#      - name: order-service
+#        url: http://localhost:8070/v3/api-docs
+#      - name: payment-service
+#        url: http://localhost:8060/v3/api-docs
+      - name: notification-service
+        url: http://localhost:8060/v3/api-docs
+#      - name: aidemo-service
+#        url: http://localhost:8020/v3/api-docs

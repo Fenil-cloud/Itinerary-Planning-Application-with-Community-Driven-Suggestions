@@ -1,14 +1,18 @@
 package com.ltineraryplanning.votingandpoll.Entity.MongoDB;
 
 
-import lombok.Data;
-import lombok.Generated;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@ToString
 @Document("SugPollDLQ")
 public class DLQ {
     @Id

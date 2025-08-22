@@ -135,9 +135,9 @@ services:
       - mongo:/data
       # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=dhruv
+      - MONGO_INITDB_ROOT_USERNAME=fenil
       - MONGO_INITDB_ROOT_PASSWORD=1234
-      - MONGO_INITDB_DATABASE=customer
+#      - MONGO_INITDB_DATABASE=customer
     networks:
       - microservices-net
 
@@ -148,7 +148,7 @@ services:
     ports:
        - 8081:8081
     environment:
-       - ME_CONFIG_MONGODB_ADMINUSERNAME=dhruv
+       - ME_CONFIG_MONGODB_ADMINUSERNAME=fenil
        - ME_CONFIG_MONGODB_ADMINPASSWORD=1234
        - ME_CONFIG_MONGODB_SERVER=mongodb
     networks:
@@ -164,6 +164,16 @@ services:
     networks:
       - microservices-net
     restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+
 networks:
   microservices-net:
     driver: bridge
@@ -173,7 +183,9 @@ volumes:
   pgadmin:
   redis-data:
   mongo:
+  elasticsearch-data:
+  qdrant_data:
 
   # redis-data-secondary:
-  # elasticsearch-data:
+
   # uptime-kuma-data:
