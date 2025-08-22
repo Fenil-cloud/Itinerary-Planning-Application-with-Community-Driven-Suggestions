@@ -3,7 +3,7 @@ spring:
     name: notification-service
   kafka:
     consumer:
-      #      enable-auto-commit: false
+      enable-auto-commit: false
       bootstrap-servers: localhost:9092
       group-id: notificationGroup
       auto-offset-reset: earliest
@@ -11,7 +11,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: '*'
-        spring.json.type.mapping: AuthDto:com.ltineraryplanning.notificationservice.record.AuthDto
+        spring.json.type.mapping: AuthDto:com.ltineraryplanning.notificationservice.record.AuthDto,ResetLink:com.ltineraryplanning.notificationservice.record.ResetLink
   mail:
     host: localhost
     port: 1025
@@ -33,3 +33,4 @@ server:
 kafkaTopic:
   topic: authTopic
   trip: tripTopic
+  reset: resetLinkTopic

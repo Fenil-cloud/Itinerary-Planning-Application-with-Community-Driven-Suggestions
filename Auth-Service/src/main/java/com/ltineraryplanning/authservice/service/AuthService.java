@@ -1,6 +1,7 @@
 package com.ltineraryplanning.authservice.service;
 
 import com.ltineraryplanning.authservice.dto.LoginRequest;
+import com.ltineraryplanning.authservice.dto.NewPasswordDTO;
 import com.ltineraryplanning.authservice.dto.RegisterRequest;
 import com.ltineraryplanning.authservice.dto.ResponseDTO;
 import jakarta.validation.Valid;
@@ -16,4 +17,6 @@ public interface AuthService {
     ResponseDTO verify(String id, String token);
 
     ResponseDTO verifyMobile(String auth, String otp) throws ParseException;
+
+    ResponseDTO resetPassword(String uid, String token,NewPasswordDTO newPasswordDTO);
 }

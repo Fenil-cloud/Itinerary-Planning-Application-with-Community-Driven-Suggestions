@@ -47,7 +47,7 @@ public class TripController {
     }
 
     @GetMapping("{tripId}")
-    public ResponseDTO getTripDetailsById(@PathVariable Long tripId){
+    public ResponseDTO getTripDetailsById(@RequestHeader("Authorization") String auth, @PathVariable Long tripId){
         return tripService.getTripDetailsById(tripId);
     }
 
@@ -70,4 +70,9 @@ public class TripController {
     public ResponseDTO partialUpdateTrip(@Valid @RequestBody TripDTO tripDTO,@PathVariable("tripId") Long tripId,@RequestHeader("Authorization") String authHeader) throws ParseException {
         return tripService.updateTrip(tripDTO,tripId,authHeader,false);
    }
+
+    @GetMapping("get-all")
+    public ResponseDTO getAll() throws ParseException {
+        return tripService.allTrip();
+    }
 }

@@ -12,7 +12,7 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5435/trips
-    username: ltineraryplanning
+    username: dhruv
     password: 1234
     driver-class-name: org.postgresql.Driver
 
@@ -38,3 +38,4 @@ kafkaTopic:
 application:
   config:
     gateway-url : "http://localhost:8222"
+

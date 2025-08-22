@@ -87,4 +87,30 @@ public class EmailServiceImpl implements EmailService {
             log.warn("WARNING - Can't send email to {}",toEmail);
         }
     }
+
+    @Override
+    public void sendResetLinkNotification(String url, String toEmail) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+        messageHelper.setFrom("itineryservice.jdbc@service.com");
+//        log.info("Template :: {}",EmailTemplates.AUTH_LINK.getTemplate());
+        final String templateName = EmailTemplates.RESET_LINK.getTemplate();
+        Map<String,Object> variables = new HashMap<>();
+        variables.put("url",url);
+        Context context = new Context();
+        context.setVariables(variables);
+        messageHelper.setSubject(EmailTemplates.RESET_LINK.getSubject());
+        try{
+            String htmlTemplate = templateEngine.process(templateName,context);
+//            log.info(htmlTemplate);
+            messageHelper.setText(htmlTemplate,true);
+            messageHelper.setTo(toEmail);
+            javaMailSender.send(mimeMessage);
+            log.info("EMAIL-RESET-LINK - Email sent to {} with template {} ",toEmail,templateName);
+
+        }
+        catch (MessagingException e){
+            log.warn("WARNING - Can't send email to {}",toEmail);
+        }
+    }
 }

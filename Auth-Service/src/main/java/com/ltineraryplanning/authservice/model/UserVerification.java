@@ -14,6 +14,8 @@ public class UserVerification {
     private String email;
     private String mobile;
     private String token;
+    private String type;
+    private Boolean isCheck;
     private boolean isVerified;
     private boolean isVerifiedMobile;
     private Integer otp;

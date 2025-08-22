@@ -21,10 +21,10 @@ spring:
               uri: lb:http://VOTING-AND-POLL-SERVICE
               predicates:
                 - Path=/api/v1/polls/**, /api/v1/votes/**
-#            - id: download-service
-#              uri: lb:http://DOWNLOAD-SERVICE
-#              predicates:
-#                - Path=/api/v1/download/**
+            - id: trip-service
+              uri: lb:http://TRIP-SERVICE
+              predicates:
+                - Path=/api/v1/trip/**
 #            - id: notification-service
 #              uri: lb:http://NOTIFICATION-SERVICE
 #              predicates:
@@ -68,9 +68,9 @@ keycloak:
   server-url: ${KEYCLOAK_SERVER_URL}
   realm: ${KEYCLOAK_REALM}
   client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SERVER}
-  admin-username: ${KEYCLOAK_ADMIN}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  admin-username: ${KEYCLOAK_ADMIN_USERNAME}
+  admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
 
 
 management:

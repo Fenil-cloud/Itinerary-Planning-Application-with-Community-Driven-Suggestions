@@ -6,8 +6,8 @@ keycloak:
   realm: ${KEYCLOAK_REALM}
   client-id: ${KEYCLOAK_CLIENT_ID}
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
-  admin-username: ${KEYCLOAK_USERNAME}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  admin-username: ${KEYCLOAK_ADMIN_USERNAME}
+  admin-password: ${KEYCLOAK_ADMIN_PASSWORD}
 
 spring:
   kafka:
@@ -16,7 +16,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: AuthDto:com.ltineraryplanning.authservice.kafka.AuthDto,RedisTokenDto:com.ltineraryplanning.authservice.kafka.RedisTokenDto
+        spring.json.type.mapping: AuthDto:com.ltineraryplanning.authservice.kafka.AuthDto,RedisTokenDto:com.ltineraryplanning.authservice.kafka.RedisTokenDto,ResetLink:com.ltineraryplanning.authservice.kafka.ResetLink
 
   datasource:
     url: jdbc:postgresql://localhost:5435/users
@@ -33,6 +33,7 @@ spring:
 kafkaTopic:
   topic: authTopic
   redisTopic: authRedisToken
+  reset: resetLinkTopic
 
 # Ratelimiting
 management:
@@ -50,11 +51,11 @@ management:
 
 twilio:
   account:
-    sid: ${TWILIO_ACCOUNT_SID}
+    sid: ${TWILIO_SID}
   auth:
-    token: ${TWILIO_AUTH_TOKEN}
+    token: ${TWILIO_TOKEN}
   phone:
-    number: ${TWILIO_PHONE_NUMBER}
+    number: ${TWILIO_NUMBER}
 #
 resilience4j:
   circuitbreaker:

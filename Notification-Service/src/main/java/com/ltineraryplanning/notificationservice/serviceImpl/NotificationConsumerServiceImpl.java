@@ -1,6 +1,7 @@
 package com.ltineraryplanning.notificationservice.serviceImpl;
 
 import com.ltineraryplanning.notificationservice.record.AuthDto;
+import com.ltineraryplanning.notificationservice.record.ResetLink;
 import com.ltineraryplanning.notificationservice.record.TripDto;
 import com.ltineraryplanning.notificationservice.service.EmailService;
 import com.ltineraryplanning.notificationservice.service.NotificationConsumerService;
@@ -50,5 +51,12 @@ public class NotificationConsumerServiceImpl implements NotificationConsumerServ
             log.error("Email sending failed...{}",exception.getMessage());
         }
 
+    }
+
+    @KafkaListener(topics = "${kafkaTopic.reset}")
+    @Override
+    public void consumeResetLinkTopic(ResetLink resetLink) throws MessagingException {
+        log.info("Consuming the message from Reset-Topic:: {} ",resetLink);
+        emailService.sendResetLinkNotification(resetLink.getUrl(),resetLink.getEmail());
     }
 }

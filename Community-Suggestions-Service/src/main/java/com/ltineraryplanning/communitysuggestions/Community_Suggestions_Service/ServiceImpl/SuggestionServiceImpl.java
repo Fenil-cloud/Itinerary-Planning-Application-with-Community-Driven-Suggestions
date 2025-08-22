@@ -8,6 +8,7 @@ import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.entity.Suggestion;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.enums.StatusCodeEnum;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.exception.SuggestionNotFoundException;
+import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.exception.handler.TripNotFoundException;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.kafka.KafkaProducer;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.kafka.consumer.PollDetailsDTO;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.repo.PollRepo;
@@ -16,6 +17,8 @@ import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.service.SuggestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -45,14 +48,20 @@ public class SuggestionServiceImpl implements SuggestionService {
     private PollRepo pollRepo;
 
     @Override
+    @CacheEvict(value = "suggestionsCache", key = "#auth")
     public ResponseDTO add(String auth, AddSuggestionDTO addSuggestionDTO, String tripID) throws ParseException {
 
         Map<String, Object> user = tokenService.extractValue(auth);
+        Map<String,Object> tripData = getTripDetails(auth, Long.parseLong(tripID));
+        if(!Boolean.parseBoolean(tripData.get("value").toString())){
+            throw new TripNotFoundException("Trip not found with Id "+tripID);
+        }
         Suggestion suggestion = new Suggestion();
         suggestion.setTitle(addSuggestionDTO.getTitle());
         suggestion.setDescription(addSuggestionDTO.getDescription());
         suggestion.setCreatedAt(LocalDateTime.now().toString());
         suggestion.setTripId(tripID);
+        suggestion.setIsCommentAllowed(Boolean.parseBoolean(tripData.get("allowComment").toString()));
         suggestion.setUserId(user.get("uid").toString());
         suggestion.setUsername(feignService.getUserName(auth));
         suggestion.setTags(addSuggestionDTO.getTag());
@@ -68,6 +77,9 @@ public class SuggestionServiceImpl implements SuggestionService {
         if (suggestionRepo.existsById(suggestionId)) {
             Comment comment = new Comment();
             var suggestion = suggestionRepo.findById(suggestionId);
+            if(!suggestion.get().getIsCommentAllowed()){
+                return new ResponseDTO(StatusCodeEnum.ERROR.getStatusCode(), "Comment not allowed on this suggestion",null);
+            }
             comment.setUserId(suggestion.get().getUsername());
             comment.setText(addCommentDTO.getText());
             comment.setCreatedAt(LocalDateTime.now().toString());
@@ -83,7 +95,6 @@ public class SuggestionServiceImpl implements SuggestionService {
         } else {
             throw new SuggestionNotFoundException("Suggestion not found");
         }
-
     }
 
     @Override
@@ -162,11 +173,15 @@ public class SuggestionServiceImpl implements SuggestionService {
         }
     }
 
+
     @Override
+    @Cacheable(value = "suggestionsCache", key = "#auth")
     public ResponseDTO viewMyAllSuggestion(String auth) throws ParseException {
         Map<String, Object> user = tokenService.extractValue(auth);
         String UID = user.get("uid").toString();
         List<Suggestion> suggestions =  suggestionRepo.findByUserId(UID);
+//        List<Suggestion> suggestions =  suggestionRepo.findAll();
+
         if(suggestions != null){
             return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(), "All Suggestions",suggestions);
         }
@@ -183,7 +198,7 @@ public class SuggestionServiceImpl implements SuggestionService {
     public ResponseDTO createSuggestionPoll(String auth, CommunitySuggestionPoll communitySuggestionPoll, String suggestionId) throws ParseException {
         Map<String, Object> user = tokenService.extractValue(auth);
         var suggestion = suggestionRepo.findById(suggestionId);
-        if(suggestion == null){
+        if(suggestion.isEmpty()){
             throw new SuggestionNotFoundException("Suggestion not found");
         }
         if(user.get("uid").toString().equalsIgnoreCase(suggestion.get().getUserId())){
@@ -209,6 +224,40 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         }
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),"polls",pollDetailsDTO);
+
+    }
+
+    private Map<String,Object> getTripDetails(String auth,Long TripId){
+            Map<String, Object> data = new HashMap<>();
+        try {
+            ResponseDTO r = feignService.getTripDetailsById(auth, TripId);
+            log.info("Trip Details: {}", r);
+            Object obj = r.object();  // or r.getObject() if you have a getter
+            if (obj instanceof Map<?, ?> map) {
+                Map<String, Object> tripMap = (Map<String, Object>) map;
+
+                String tripName = (String) tripMap.get("tripName");
+//            System.out.println("Trip name is: " + tripName);
+                Boolean comment = (Boolean) tripMap.get("allowComment");
+                data.put("allowComment", comment);
+                data.put("value", true);
+//            System.out.println("Is Comment on: "+comment);
+                // Access nested destinations list
+                List<Map<String, Object>> destinations = (List<Map<String, Object>>) tripMap.get("destinations");
+                if (destinations != null) {
+                    for (Map<String, Object> dest : destinations) {
+//                    System.out.println("From: " + dest.get("from") + ", To: " + dest.get("to"));
+                    }
+                }
+                return data;
+            }
+            data.put("value", false);
+            return data;
+        }catch (Exception e){
+            data.put("value", false);
+            return data;
+        }
+
 
     }
 }
