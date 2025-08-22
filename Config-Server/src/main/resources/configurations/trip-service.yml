@@ -21,7 +21,20 @@ spring:
       ddl-auto: update
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  ai:
+    openai:
+      api-key: API_KEY
+      chat:
+        options:
+          model: gpt-3.5-turbo
+      embedding:
+        options:
+          model: text-embedding-3-small
 
+    vectorstore:
+      qdrant:
+        base-url: http://localhost:6333
+        collection-name: suggestions
 #  h2:
 #    console:
 #      enabled: true
@@ -34,6 +47,7 @@ spring:
 
 kafkaTopic:
   trip: tripTopic
+  createEventTopic: create-e
 
 application:
   config:
