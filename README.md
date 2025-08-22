@@ -53,4 +53,3 @@ The system follows a **distributed microservice architecture** with dedicated se
 
 ---
 
-## 📂 Project Structure
