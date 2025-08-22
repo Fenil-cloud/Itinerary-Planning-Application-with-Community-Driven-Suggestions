@@ -47,8 +47,8 @@ The system follows a **distributed microservice architecture** with dedicated se
 - **Spring Cloud** (Eureka, Config, Gateway)
 - **Spring Security + JWT**
 - **Spring Data JPA / Hibernate**
-- **MySQL / PostgreSQL**
-- **Kafka / RabbitMQ** (for event-driven communication, optional)
+- **MongoDB / PostgreSQL**
+- **Kafka** (for event-driven communication, optional)
 - **Docker** (for containerization)
 
 ---
