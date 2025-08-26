@@ -20,6 +20,7 @@ public class Suggestion {
     private String description;
     private Boolean isCommentAllowed;
     private Boolean isEmbedded = false;
+    private String tripType;
     private List<String> tags;
 
     //  todo --- Voting ---

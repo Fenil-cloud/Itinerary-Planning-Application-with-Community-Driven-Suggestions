@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString
 public class DestinationDTO {
     @NotBlank(message = "Please specify where to trip start for particular start date")
     private String from;

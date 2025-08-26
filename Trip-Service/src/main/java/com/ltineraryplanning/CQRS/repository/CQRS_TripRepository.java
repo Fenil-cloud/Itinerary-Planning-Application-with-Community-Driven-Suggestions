@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CQRS_TripRepository extends MongoRepository<TripView,Long> {
+
+    TripView findByTripId(Long tripId);
 }

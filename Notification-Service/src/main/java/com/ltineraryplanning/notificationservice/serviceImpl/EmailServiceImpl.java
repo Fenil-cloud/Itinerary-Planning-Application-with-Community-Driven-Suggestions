@@ -1,9 +1,11 @@
 package com.ltineraryplanning.notificationservice.serviceImpl;
 
 import com.ltineraryplanning.notificationservice.enums.EmailTemplates;
+import com.ltineraryplanning.notificationservice.record.SendDestinationInNotification;
 import com.ltineraryplanning.notificationservice.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.ParseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -15,7 +17,9 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -58,19 +62,26 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendUpcomingTripNotification(String tripName, String fname, String destination, LocalDate startDate, LocalDate endDate, String toEmail) throws MessagingException {
+    public void sendUpcomingTripNotification(String tripName, String fname, List<SendDestinationInNotification> destination, String startDate, String endDate, String toEmail) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
         messageHelper.setFrom("itineryservice.jdbc@service.com");
 //        log.info("Template :: {}",EmailTemplates.AUTH_LINK.getTemplate());
         final String templateName = EmailTemplates.UPCOMING_TRIP_NOTIFICATION.getTemplate();
+        LocalDate starting = LocalDate.parse(startDate);
+        LocalDate ending = LocalDate.parse(endDate);
+        long daysBetween = ChronoUnit.DAYS.between(starting, ending);
+
+
+
         Map<String,Object> variables = new HashMap<>();
-        variables.put("email",toEmail);
-        variables.put("tripName",tripName);
-        variables.put("fname",fname);
-        variables.put("destination",destination);
-        variables.put("startDate",startDate);
-        variables.put("endDate",endDate);
+        variables.put("email", toEmail);
+        variables.put("tripName", tripName);
+        variables.put("fname", fname);
+        variables.put("destination", destination);
+        variables.put("startDate", startDate);
+        variables.put("endDate", endDate);
+        variables.put("days",daysBetween);
         Context context = new Context();
         context.setVariables(variables);
         messageHelper.setSubject(EmailTemplates.UPCOMING_TRIP_NOTIFICATION.getSubject());

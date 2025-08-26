@@ -11,7 +11,8 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: '*'
-        spring.json.type.mapping: AuthDto:com.ltineraryplanning.notificationservice.record.AuthDto
+        spring.json.type.mapping: AuthDto:com.ltineraryplanning.notificationservice.record.AuthDto,ResetLink:com.ltineraryplanning.notificationservice.record.ResetLink,NotificationDTO:com.ltineraryplanning.notificationservice.record.NotificationDTO,EmailAndFirstNameDTO:com.ltineraryplanning.notificationservice.record.EmailAndFirstNameDTO,SendDestinationInNotification:com.ltineraryplanning.notificationservice.record.SendDestinationInNotification
+
   mail:
     host: localhost
     port: 1025
@@ -33,3 +34,16 @@ server:
 kafkaTopic:
   topic: authTopic
   trip: tripTopic
+  reset: resetLinkTopic
+
+#management:
+#  health:
+#    circuitbreakers:
+#      enabled: true          # Enables circuit breaker health indicators
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health      # Exposes only the /actuator/health endpoint over HTTP
+#  endpoint:
+#    health:
+#      show-details: ALWAYS

@@ -30,6 +30,9 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Slf4j
@@ -470,6 +473,19 @@ public class AuthServiceImpl implements AuthService {
 
 
         return null;
+    }
+
+    @Override
+    public List<EmailAndFirstNameDTO> getEmailAndFirstName(List<String> usernames) {
+        List<User> users = userRepo.findAllById(usernames);
+        List<EmailAndFirstNameDTO> list = users.stream().map(m-> {
+            EmailAndFirstNameDTO dto = new EmailAndFirstNameDTO();
+            dto.setFirstName(m.getFirstName());
+            dto.setEmail(m.getEmail());
+                    return dto;
+                }
+        ).toList();
+        return list;
     }
 }
 

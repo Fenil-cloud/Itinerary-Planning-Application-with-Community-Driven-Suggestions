@@ -21,10 +21,10 @@ spring:
               uri: lb:http://VOTING-AND-POLL-SERVICE
               predicates:
                 - Path=/api/v1/polls/**, /api/v1/votes/**
-#            - id: download-service
-#              uri: lb:http://DOWNLOAD-SERVICE
-#              predicates:
-#                - Path=/api/v1/download/**
+            - id: trip-service
+              uri: lb:http://TRIP-SERVICE
+              predicates:
+                - Path=/api/v1/trip/**
 #            - id: notification-service
 #              uri: lb:http://NOTIFICATION-SERVICE
 #              predicates:
@@ -65,12 +65,12 @@ kafkaTopic:
   topic: authRedisToken
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SERVER}
-  admin-username: ${KEYCLOAK_ADMIN}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  server-url: ${SERVER_URL}
+  realm: ${TWILIO_REALM}
+  client-id: ${TWILIO_CLIENT_ID}
+  client-secret: ${CLIENT_SECRET}
+  admin-username: ${USERNAME}
+  admin-password: ${PASSWORD}
 
 
 management:

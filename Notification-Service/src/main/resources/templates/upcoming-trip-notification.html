@@ -1,69 +1,281 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${tripName} + ' - Trip Details'">Trip Details</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
             color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
             background-color: #ffffff;
-            padding: 40px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
+
         .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #8e44ad 100%);
+            padding: 40px 30px;
             text-align: center;
-            margin-bottom: 30px;
+            color: white;
         }
-        .logo {
+
+        .header h1 {
+            margin: 0 0 10px 0;
             font-size: 28px;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
         }
+
+        .header .traveler {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
         .content {
+            padding: 30px;
+        }
+
+        .trip-dates {
+            text-align: center;
             margin-bottom: 30px;
         }
-         .footer {
+
+        .date-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .date-card {
+            display: table-cell;
+            width: 45%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
             text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 14px;
+            vertical-align: top;
+        }
+
+        .date-card:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .date-card:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .date-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .date-card .date {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 25px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .destination {
+            background-color: #f8f9ff;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .destination:last-child {
+            margin-bottom: 0;
+        }
+
+        .route {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .route-arrow {
+            color: #4facfe;
+            margin: 0 10px;
+        }
+
+        .destination-dates {
+            display: table;
+            width: 100%;
+        }
+
+        .destination-date {
+            display: table-cell;
+            width: 48%;
+            background-color: white;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .destination-date:first-child {
+            margin-right: 4%;
+        }
+
+        .destination-date-label {
+            font-size: 11px;
             color: #666;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .destination-date-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .trip-duration {
+            text-align: center;
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .duration-text {
+            font-size: 14px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .duration-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Email-safe responsive styles */
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .date-card {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 10px;
+                border-radius: 10px !important;
+            }
+
+            .destination-date {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 10px;
+            }
+
+            .destination-date:first-child {
+                margin-right: 0;
+            }
+        }
+
+        /* Fallback for email clients that don't support gradients */
+        .header {
+            background-color: #ff6b6b; /* Fallback color */
+        }
+
+        .date-card {
+            background-color: #667eea; /* Fallback color */
+        }
+
+        .trip-duration {
+            background-color: #667eea; /* Fallback color */
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- Header Section -->
     <div class="header">
-        <div class="logo">XYZ Itinerary Planning</div>
+        <h1 th:text="${tripName}">Kerala Expedition</h1>
+        <p class="traveler">
+            Welcome, <span th:text="${fname}">Traveler</span>!
+        </p>
     </div>
 
+    <!-- Content Section -->
     <div class="content">
-        <p>Hello, <strong th:text="${fname}">John Doe</strong></p>
+        <!-- Trip Dates -->
+        <div class="trip-dates">
+            <div class="date-row">
+                <div class="date-card">
+                    <h3>Trip Starts</h3>
+                    <p class="date" th:text="${startDate}">Nov 05, 2025</p>
+                </div>
+                <div class="date-card">
+                    <h3>Trip Ends</h3>
+                    <p class="date" th:text="${endDate}">Nov 12, 2025</p>
+                </div>
+            </div>
+        </div>
 
-        <div>
-            <p>We’re excited about your upcoming trip<strong><span th:text = "${tripName}"></span></strong> to <strong><span th:text="${destinationName}"></span></strong>.</p>
-            <p>Trip Dates: <span th:text="${startDate}"></span> to <span th:text="${endDate}"></span></p>
+        <!-- Destinations Section -->
+        <div class="destinations-section">
+            <h2 class="section-title">Get ready for your upcoming trip!</h2>
+
+            <div th:each="dest : ${destination}" class="destination">
+                <div class="route">
+                    <span th:text="${dest.from}">Kochi</span>
+                    <span class="route-arrow">→</span>
+                    <span th:text="${dest.to}">Munnar</span>
+                </div>
+
+                <div class="destination-dates">
+                    <div class="destination-date">
+                        <span class="destination-date-label">Arrival</span>
+                        <span class="destination-date-value" th:text="${dest.startDate}">Nov 05</span>
+                    </div>
+                    <div class="destination-date">
+                        <span class="destination-date-label">Departure</span>
+                        <span class="destination-date-value" th:text="${dest.endDate}">Nov 07</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trip Duration -->
+        <div class="trip-duration">
+            <div class="duration-text">Total Trip Duration</div>
+            <p class="duration-value" th:text="${days} + ' Days'">8 Days</p>
         </div>
     </div>
-
-
-    <div class="footer">
-        <p>If you have any questions or need assistance, please contact our support team.</p>
-        <p>&copy; 2025 YourApp. All rights reserved.</p>
-        <p>This is an automated email, please do not reply to this message.</p>
-    </div>
 </div>
-
 </body>
 </html>

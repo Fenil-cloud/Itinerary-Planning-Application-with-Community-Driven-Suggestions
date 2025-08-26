@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ltineraryplanning.tripservice.enums.TripType;
 import com.ltineraryplanning.tripservice.validation.DestinationDatesWithinTrip;
 import com.ltineraryplanning.tripservice.validation.EndDateAfterStartDate;
+import com.ltineraryplanning.tripservice.validation.TripTypeValidation;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -38,7 +40,8 @@ public class TripDTO {
     private Boolean allowComment;
     @NotNull(message = "isPrivate must not be null")
     private Boolean isPrivate;
-    @Enumerated(STRING)
+//    @TripTypeValidation
+    @Enumerated(EnumType.STRING)
     @NotNull(message = "Trip type must be specified")
     private TripType tripType;
     @NotNull(message = "Destinations list cannot be null")

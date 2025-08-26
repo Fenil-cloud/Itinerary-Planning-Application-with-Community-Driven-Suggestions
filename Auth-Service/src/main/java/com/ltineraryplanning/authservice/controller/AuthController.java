@@ -1,9 +1,6 @@
 package com.ltineraryplanning.authservice.controller;
 
-import com.ltineraryplanning.authservice.dto.LoginRequest;
-import com.ltineraryplanning.authservice.dto.NewPasswordDTO;
-import com.ltineraryplanning.authservice.dto.RegisterRequest;
-import com.ltineraryplanning.authservice.dto.ResponseDTO;
+import com.ltineraryplanning.authservice.dto.*;
 import com.ltineraryplanning.authservice.service.AuthService;
 import com.ltineraryplanning.authservice.service.HelperService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -11,11 +8,11 @@ import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -82,5 +79,10 @@ public class AuthController {
     @PostMapping("reset/{uid}/{token}")
     public ResponseDTO resetPassword(@PathVariable String uid, @PathVariable String token, @RequestBody NewPasswordDTO newPasswordDTO) throws ParseException {
         return authService.resetPassword(uid,token,newPasswordDTO);
+    }
+
+    @PostMapping("getEmailAndFirstName")
+    public List<EmailAndFirstNameDTO> getEmailAndFirstName(@RequestBody List<String> usernames) throws ParseException {
+        return authService.getEmailAndFirstName(usernames);
     }
 }

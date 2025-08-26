@@ -3,6 +3,29 @@ spring:
     mongodb:
       uri: mongodb://dhruv:1234@localhost:27018/CommunitySuggestions?authSource=admin
 
+    redis:
+      host: localhost
+      port: 6380
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000 # 10 minute
+
+  ai:
+    openai:
+      api-key: ${OPEN_AI}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+    vectorstore:
+      qdrant:
+        base-url: http://localhost:6333
+        collection-name: suggestions
+
   kafka:
     consumer:
       enable-auto-commit: false
@@ -19,13 +42,13 @@ spring:
       ack-mode: manual_immediate
 
     producer:
-        bootstrap-servers: localhost:9092
-        key-serializer: org.apache.kafka.common.serialization.StringSerializer
-        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-        properties:
-          spring.json.type.mapping: CommunitySuggestionPoll:com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.dto.CommunitySuggestionPoll
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: CommunitySuggestionPoll:com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.dto.CommunitySuggestionPoll
 server:
-    port: 8095
+  port: 8095
 
 KafkaTopic:
   topic: suggestionTopic
@@ -35,12 +58,12 @@ KafkaTopic:
 
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SERVER}
-  admin-username: ${KEYCLOAK_ADMIN}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  server-url: ${SERVER_URL}
+  realm: ${TWILIO_REALM}
+  client-id: ${TWILIO_CLIENT_ID}
+  client-secret: ${CLIENT_SECRET}
+  admin-username: ${USERNAME}
+  admin-password: ${PASSWORD}
 
 management:
   health:

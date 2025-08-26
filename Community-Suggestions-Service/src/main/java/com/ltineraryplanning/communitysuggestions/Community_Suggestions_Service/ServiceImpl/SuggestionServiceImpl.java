@@ -7,6 +7,7 @@ import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.entity.Comment;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.entity.Suggestion;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.enums.StatusCodeEnum;
+import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.enums.TripType;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.exception.SuggestionNotFoundException;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.exception.handler.TripNotFoundException;
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.kafka.KafkaProducer;
@@ -53,14 +54,19 @@ public class SuggestionServiceImpl implements SuggestionService {
 
         Map<String, Object> user = tokenService.extractValue(auth);
         Map<String,Object> tripData = getTripDetails(auth, Long.parseLong(tripID));
+//        log.info(tripData.get("TripType").);
+
         if(!Boolean.parseBoolean(tripData.get("value").toString())){
             throw new TripNotFoundException("Trip not found with Id "+tripID);
         }
         Suggestion suggestion = new Suggestion();
         suggestion.setTitle(addSuggestionDTO.getTitle());
         suggestion.setDescription(addSuggestionDTO.getDescription());
+        suggestion.setDestinationName(addSuggestionDTO.getDestinationName());
         suggestion.setCreatedAt(LocalDateTime.now().toString());
         suggestion.setTripId(tripID);
+
+        suggestion.setTripType(tripData.get("tripType").toString());
         suggestion.setIsCommentAllowed(Boolean.parseBoolean(tripData.get("allowComment").toString()));
         suggestion.setUserId(user.get("uid").toString());
         suggestion.setUsername(feignService.getUserName(auth));
@@ -240,6 +246,9 @@ public class SuggestionServiceImpl implements SuggestionService {
 //            System.out.println("Trip name is: " + tripName);
                 Boolean comment = (Boolean) tripMap.get("allowComment");
                 data.put("allowComment", comment);
+                String tripTypeStr = (String) tripMap.get("tripType");
+                TripType tripType = TripType.valueOf(tripTypeStr);
+                data.put("tripType",tripType.name());
                 data.put("value", true);
 //            System.out.println("Is Comment on: "+comment);
                 // Access nested destinations list

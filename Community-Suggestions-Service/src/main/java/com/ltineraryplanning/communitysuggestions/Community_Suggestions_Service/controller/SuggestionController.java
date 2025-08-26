@@ -37,7 +37,10 @@ public class SuggestionController {
     @Bulkhead(name = "communityServiceRateLimiter", fallbackMethod = "addNewBulkFallback")
     @CircuitBreaker(name = "communityService", fallbackMethod = "addFallBack")
     @PostMapping("{tripID}/add")
-    private ResponseDTO addNew(@RequestHeader("Authorization") String auth,@RequestBody AddSuggestionDTO addSuggestionDTO,@PathVariable String tripID) throws ParseException {
+    private ResponseDTO addNew(@RequestHeader("Authorization") String auth,@Valid @RequestBody AddSuggestionDTO addSuggestionDTO,Errors errors,@PathVariable String tripID) throws ParseException {
+        if(errors.hasErrors()){
+            return new ResponseDTO(StatusCodeEnum.ERROR.getStatusCode(), errors.getAllErrors().get(0).getDefaultMessage(),null);
+        }
         return suggestionService.add(auth,addSuggestionDTO,tripID);
     }
 

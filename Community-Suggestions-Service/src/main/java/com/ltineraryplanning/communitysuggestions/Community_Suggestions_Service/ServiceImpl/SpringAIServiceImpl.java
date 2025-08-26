@@ -7,6 +7,7 @@ import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.
 import com.ltineraryplanning.communitysuggestions.Community_Suggestions_Service.service.AiService;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.document.Document;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class SpringAIServiceImpl implements AiService {
 
 
@@ -41,11 +43,13 @@ public class SpringAIServiceImpl implements AiService {
     public void addToVectorDb() {
         List<Suggestion> suggestions = suggestionRepo.findByIsEmbeddedFalse();
         List<Document> documents = new ArrayList<>();
+        log.info("Suggestions :: {}",suggestions);
 
         for (Suggestion sug : suggestions) {
             StringBuilder sb = new StringBuilder();
             sb.append("Title: ").append(sug.getTitle()).append(". ");
             sb.append("Description: ").append(sug.getDescription()).append(". ");
+            sb.append("Trip Type: ").append(sug.getTripType()).append(". ");
 
             if (sug.getComments() != null && !sug.getComments().isEmpty()) {
                 sb.append("User Comments:\n");
@@ -61,6 +65,8 @@ public class SpringAIServiceImpl implements AiService {
             documents.add(doc);
             sug.setIsEmbedded(true);
             suggestionRepo.save(sug);
+            log.info("done");
+
         }
 
         // Add all documents to Qdrant vector store

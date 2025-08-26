@@ -1,7 +1,6 @@
 server:
   port: 8105
 
-
 spring:
   kafka:
     consumer:
@@ -30,7 +29,7 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5435/VotingAndPoll
-    username: ltineraryplanning
+    username: dhruv
     password: 1234
     driver-class-name: org.postgresql.Driver
 
@@ -48,5 +47,17 @@ kafkaTopic:
   sugPoll: sugPollTopic
   savePollDetails: savePollDetailsTopic
   pollVote: pollVoteTopic
+
+management:
+#  health:
+#    circuitbreakers:
+#      enabled: true          # Enables circuit breaker health indicators
+  endpoints:
+    web:
+      exposure:
+        include: health      # Exposes only the /actuator/health endpoint over HTTP
+  endpoint:
+    health:
+      show-details: ALWAYS
 
 

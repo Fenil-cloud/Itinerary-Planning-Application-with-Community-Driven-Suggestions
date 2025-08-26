@@ -1,8 +1,6 @@
 package com.ltineraryplanning.notificationservice.serviceImpl;
 
-import com.ltineraryplanning.notificationservice.record.AuthDto;
-import com.ltineraryplanning.notificationservice.record.ResetLink;
-import com.ltineraryplanning.notificationservice.record.TripDto;
+import com.ltineraryplanning.notificationservice.record.*;
 import com.ltineraryplanning.notificationservice.service.EmailService;
 import com.ltineraryplanning.notificationservice.service.NotificationConsumerService;
 import jakarta.mail.MessagingException;
@@ -10,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -36,18 +36,28 @@ public class NotificationConsumerServiceImpl implements NotificationConsumerServ
 
     @KafkaListener(topics = "${kafkaTopic.trip}")
     @Override
-    public void consumeUpcomingTripEmailTopic(TripDto tripDto) throws MessagingException {
-        log.info("Consuming the message from Trip-Topic:: {} ",tripDto);
+    public void consumeUpcomingTripEmailTopic(NotificationDTO notificationDTO) throws MessagingException {
         try {
-            emailService.sendUpcomingTripNotification(
-                    tripDto.email(),
-                    tripDto.destination(),
-                    tripDto.fname(),
-                    tripDto.startDate(),
-                    tripDto.endDate(),
-                    tripDto.tripName()
-            );
-        }catch (MessagingException exception){
+            log.info("DTO ::{}",notificationDTO);
+            List<EmailAndFirstNameDTO> emailAndName= notificationDTO.getEmailAndFirstName();
+            for (EmailAndFirstNameDTO data : emailAndName){
+                emailService.sendUpcomingTripNotification(
+                        notificationDTO.getTripName(),
+                        data.getFirstName(),
+                        notificationDTO.getDestinations(),
+                        notificationDTO.getTripStartDate().toString(),
+                        notificationDTO.getTripEndDate().toString(),
+                        data.getEmail());
+            }
+//            emailService.sendUpcomingTripNotification(
+//                    notificationDTO.getEmailAndFirstName().get(0).getEmail(),
+//                    String.valueOf(notificationDTO.getDestinations().get(0)),
+//                    notificationDTO.getEmailAndFirstName().get(0).getFirstName(),
+//                    notificationDTO.getTripStartDate(),
+//                    notificationDTO.getTripEndDate(),
+//                    notificationDTO.getTripName()
+//            );
+        }catch (Exception exception){
             log.error("Email sending failed...{}",exception.getMessage());
         }
 

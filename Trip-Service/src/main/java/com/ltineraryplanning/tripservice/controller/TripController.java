@@ -53,8 +53,8 @@ public class TripController {
 
     //todo put @Argument
 //    @QueryMapping("getTripById")
-        @GetMapping("{tripId}")
-    public ResponseDTO getTripDetailsById(@PathVariable("") Long tripId){
+    @GetMapping("{tripId}")
+    public ResponseDTO getTripDetailsById(@RequestHeader("Authorization") String auth, @PathVariable Long tripId){
         return tripService.getTripDetailsById(tripId);
     }
 

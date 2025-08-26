@@ -1,18 +1,29 @@
 server:
   port: 8050
-
 spring:
   kafka:
+    bootstrap-servers: localhost:9092
     producer:
-      bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: NotificationDTO:com.ltineraryplanning.tripservice.dto.NotificationDTO
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: NotificationDTO:com.ltineraryplanning.tripservice.dto.NotificationDTO,EmailAndFirstNameDTO:com.ltineraryplanning.tripservice.dto.EmailAndFirstNameDTO,SendDestinationInNotification:com.ltineraryplanning.tripservice.dto.SendDestinationInNotification
+    consumer:
+      enable-auto-commit: true
+      group-id: test-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
 
   datasource:
     url: jdbc:postgresql://localhost:5435/trips
-    username: ltineraryplanning
+    username: dhruv
     password: 1234
     driver-class-name: org.postgresql.Driver
 
@@ -21,34 +32,78 @@ spring:
       ddl-auto: update
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    mongodb:
+      uri: mongodb://dhruv:1234@localhost:27018/ripdb?authSource=admin
+
+#    redis:
+#      host: localhost
+#      port: 6380
+#  cache:
+#    type: redis
+
+#  elasticsearch:
+#    uris: http://localhost:9200
+#    username:
+#    password:
+
   ai:
     openai:
-      api-key: API_KEY
+      api-key: ${OPEN_AI}
       chat:
         options:
           model: gpt-3.5-turbo
       embedding:
         options:
           model: text-embedding-3-small
-
     vectorstore:
       qdrant:
         base-url: http://localhost:6333
-        collection-name: suggestions
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2-console
-#  datasource:
-#    url: jdbc:h2:mem:trips
-#    username: sa
-#    password: admin
-#    driver-class-name: org.h2.Driver
+        collection-name: tripDesc
+        initialize-schema: true
+  #  h2:
+  #    console:
+  #      enabled: true
+  #      path: /h2-console
+  #  datasource:
+  #    url: jdbc:h2:file:C:\\Users\\Fenil\\test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+  #    username: sa
+  #    password: admin
+  #    driver-class-name: org.h2.Driver
+  #  jpa:
+  #    hibernate:
+  #      ddl-auto: update
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    persist-authorization: true
+    try-it-out-enabled: true
 
 kafkaTopic:
   trip: tripTopic
   createEventTopic: create-e
+  #  updateEventTopic: update-e
+  #  shareEventForUpdate: share-e
 
 application:
   config:
-    gateway-url : "http://localhost:8222"
+    gateway-url : http://localhost:8222
+
+  #logging:
+  #  level:
+  #    org.apache.kafka.clients.consumer: DEBUG
+  #    org.springframework.kafka.listener: DEBUG
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true          # Enables circuit breaker health indicators
+  endpoints:
+    web:
+      exposure:
+        include: health      # Exposes only the /actuator/health endpoint over HTTP
+  endpoint:
+    health:
+      show-details: ALWAYS

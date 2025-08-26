@@ -12,6 +12,7 @@ import com.ltineraryplanning.tripservice.dto.*;
 import com.ltineraryplanning.tripservice.entity.Destination;
 import com.ltineraryplanning.tripservice.entity.Trip;
 import com.ltineraryplanning.tripservice.enums.StatusCodeEnum;
+import com.ltineraryplanning.tripservice.enums.TripType;
 import com.ltineraryplanning.tripservice.exception.TripNotFoundException;
 import com.ltineraryplanning.tripservice.repository.TripRepository;
 import com.ltineraryplanning.tripservice.service.EsService;
@@ -77,6 +78,10 @@ public class TripServiceImpl implements TripService {
     private EmbeddingModel embeddingModel;
     @Override
     public ResponseDTO createTrip(TripDTO tripDTO,String auth) throws ParseException {
+        List<String> stringList = new ArrayList<>();
+        stringList.add(TripType.FAMILY_TRIP.toString());
+        stringList.add(TripType.BUSINESS_TRIP.toString());
+        stringList.add(TripType.SOLO_TRIP.toString());
     Map<String,Object> map =  extractTokenService.extractValue(auth);
        Trip trip = Trip.builder().build();
         BeanUtils.copyProperties(tripDTO, trip);
@@ -214,9 +219,16 @@ public class TripServiceImpl implements TripService {
     @Override
     public ResponseDTO getTripDetailsById(Long tripId) {
 //        todo uncomment for cqrs design pattern
-        TripView trip = cqrs_tripRepository.findById(tripId).orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
-//        Trip trip = tripRepository.findById(tripId)
-//                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+        List<TripView> trip1 = cqrs_tripRepository.findAll();
+        log.info("Data ::: {}",trip1);
+//        if(trip)
+//        log.info("Trip: data :: {}",trip.getTripName());
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+        log.info("data :: {}",trip);
+//        log.info("enum{});
+//        log.info("{}",trip);
+//        System.out.println(trip);
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.DATA_FETCHED_SUCCESSFULLY,trip);
     }
 
