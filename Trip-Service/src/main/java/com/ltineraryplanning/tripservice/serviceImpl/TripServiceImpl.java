@@ -58,6 +58,9 @@ public class TripServiceImpl implements TripService {
     @Value("${kafkaTopic.createEventTopic}")
     private String createEventTopic;
 
+    @Value("${kafkaTopic.deleteEventTopic}")
+    private String deleteEventTopic;
+
 //    @Value("${kafkaTopic.shareEventForUpdate}")
 //    private String shareEventForUpdate;
 //
@@ -82,6 +85,7 @@ public class TripServiceImpl implements TripService {
         BeanUtils.copyProperties(tripDTO, trip);
         trip.setCreatedAt(LocalDateTime.now());
         trip.setUpdatedAt(null);
+        trip.setIsDelete(false);
         trip.setUserId((String) map.get("preferred_username"));
         List<Destination> destinations = tripDTO.getDestinations().stream()
                 .map(dto -> {
@@ -89,7 +93,8 @@ public class TripServiceImpl implements TripService {
                     BeanUtils.copyProperties(dto, dest);
                     dest.setTrip(trip);
                     dest.setCreatedAt(LocalDateTime.now());
-                    dest.setUpdatedAt(null);// maintain bidirectional mapping
+                    dest.setUpdatedAt(null);
+                   // maintain bidirectional mapping
                     return dest;
                 })
                 .collect(Collectors.toList());
@@ -118,13 +123,13 @@ public class TripServiceImpl implements TripService {
 //        List<Embedding> embeddings = embeddingModel.embed(List.of(tripText.toString()));
 //        Embedding embedding = embeddings.get(0);
 
-        float[] embedding = embeddingModel.embed(tripText.toString());
-        // Store in Qdrant
-        Document doc = new Document(
-                tripText.toString(),   // content
-                Map.of("tripId", saveTrip.getTripId().toString())  // metadata
-        );
-        qdrantVectorStore.add(List.of(doc));
+//        float[] embedding = embeddingModel.embed(tripText.toString());
+//        // Store in Qdrant
+//        Document doc = new Document(
+//                tripText.toString(),   // content
+//                Map.of("tripId", saveTrip.getTripId().toString())  // metadata
+//        );
+//        qdrantVectorStore.add(List.of(doc));
         List<DestinationView> destinationViews = saveTrip.getDestinations().stream()
                 .map(dest -> DestinationView.builder()
                         .destinationId(dest.getDestinationId())
@@ -141,6 +146,7 @@ public class TripServiceImpl implements TripService {
                 .collect(Collectors.toList());
         TripView tripView = TripView.builder()
                 .numberOfMembers(saveTrip.getNumberOfMembers())
+                .isDelete(saveTrip.getIsDelete())
                 .tripName(saveTrip.getTripName())
                 .tripType(saveTrip.getTripType())
                 .allowComment(saveTrip.getAllowComment())
@@ -149,7 +155,7 @@ public class TripServiceImpl implements TripService {
                 .isPrivate(saveTrip.getIsPrivate())
                 .isPublic(saveTrip.getIsPublic())
                 .shareWithUsernames(saveTrip.getShareWithUsernames())
-                .tripId(saveTrip.getTripId())
+                .tripId(saveTrip.getTripId().toString())
                 .userId(saveTrip.getUserId())
                 .updatedAt(saveTrip.getUpdatedAt())
                 .startDate(saveTrip.getStartDate())
@@ -214,7 +220,7 @@ public class TripServiceImpl implements TripService {
     @Override
     public ResponseDTO getTripDetailsById(Long tripId) {
 //        todo uncomment for cqrs design pattern
-        TripView trip = cqrs_tripRepository.findById(tripId).orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+        TripView trip = cqrs_tripRepository.findById(tripId.toString()).orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
 //        Trip trip = tripRepository.findById(tripId)
 //                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
         return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.DATA_FETCHED_SUCCESSFULLY,trip);
@@ -227,7 +233,7 @@ public class TripServiceImpl implements TripService {
 //        Trip trip = tripRepository.findById(tripId)
 //                .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
         Optional<Trip> trip = tripRepository.findById(tripId);
-        if(trip.isEmpty()){
+        if(trip.isEmpty() || trip.get().getIsDelete()){
             return new ResponseDTO(StatusCodeEnum.BAD_REQUEST.getStatusCode(),Constants.TRIP_NOT_FOUND ,null);
         }
         Trip trip1 = trip.get();
@@ -311,7 +317,7 @@ public class TripServiceImpl implements TripService {
                 .isPrivate(saveTrip.getIsPrivate())
                 .isPublic(saveTrip.getIsPublic())
                 .shareWithUsernames(saveTrip.getShareWithUsernames())
-                .tripId(saveTrip.getTripId())
+                .tripId(saveTrip.getTripId().toString())
                 .userId(saveTrip.getUserId())
                 .updatedAt(saveTrip.getUpdatedAt())
                 .startDate(saveTrip.getStartDate())
@@ -325,6 +331,29 @@ public class TripServiceImpl implements TripService {
     public ResponseDTO allTrip() {
         List<Trip> trips = tripRepository.findAll();
         return new ResponseDTO("200","all trips",trips);
+    }
+
+    @Override
+    public ResponseDTO deleteTripById(Long tripId) {
+        Trip trip = tripRepository.findById(tripId).orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
+        trip.setIsDelete(true);
+        Trip savedTrip = tripRepository.save(trip);
+        TripView tripView = cqrs_tripRepository.findById(savedTrip.getTripId().toString()).get();
+        tripView.setIsDelete(true);
+        kafkaTemplate.send(deleteEventTopic,tripView);
+        log.info("shared data " + tripView);
+        return new ResponseDTO("200","Trip Deleted Successfully",null);
+    }
+
+    @Override
+    public ResponseDTO getAllTripsByUserIds(String token) throws ParseException {
+        Map<String, Object> tokenData = extractTokenService.extractValue(token);
+        String username = (String) tokenData.get("preferred_username");
+        List<TripView> getAllTrips = cqrs_tripRepository.findByUserIdAndIsDeleteFalse(username);
+        if(getAllTrips.isEmpty()){
+            throw new TripNotFoundException(Constants.TRIP_NOT_FOUND);
+        }
+        return new ResponseDTO(StatusCodeEnum.OK.getStatusCode(),Constants.DATA_FETCHED_SUCCESSFULLY,getAllTrips);
     }
 
 

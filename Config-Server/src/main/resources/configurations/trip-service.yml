@@ -3,13 +3,24 @@ server:
 
 spring:
   kafka:
+    bootstrap-servers: localhost:9092
     producer:
-      bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: NotificationDTO:com.ltineraryplanning.tripservice.dto.NotificationDTO
-
+        spring.json.trusted.packages: '*'
+        spring.json.type.mapping: NotificationDTO:com.ltineraryplanning.tripservice.dto.NotificationDTO,EmailAndFirstNameDTO:com.ltineraryplanning.tripservice.dto.EmailAndFirstNameDTO,SendDestinationInNotification:com.ltineraryplanning.tripservice.dto.SendDestinationInNotification
+    consumer:
+      enable-auto-commit: true
+      group-id: test-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
   datasource:
     url: jdbc:postgresql://localhost:5435/trips
     username: ltineraryplanning
@@ -23,7 +34,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   ai:
     openai:
-      api-key: API_KEY
+      api-key: {OPENAI}
       chat:
         options:
           model: gpt-3.5-turbo
@@ -44,10 +55,13 @@ spring:
 #    username: sa
 #    password: admin
 #    driver-class-name: org.h2.Driver
-
+  data:
+    mongodb:
+      uri: mongodb://fenil:1234@localhost:27018/tripdb?authSource=admin
 kafkaTopic:
   trip: tripTopic
   createEventTopic: create-e
+  deleteEventTopic: delete-e
 
 application:
   config:

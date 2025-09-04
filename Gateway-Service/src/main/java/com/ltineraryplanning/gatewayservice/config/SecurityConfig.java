@@ -16,11 +16,11 @@ public class SecurityConfig {
         serverHttpSecurity
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange->
-                                exchange.pathMatchers("/eureka/**","/api/v1/auth/login","/api/v1/auth/register/**","/api/v1/auth/verify/**","verify/mobile","/api/v1/auth/getEmailAndFirstName")
+                                exchange.pathMatchers("/eureka/**","/api/v1/auth/login","/api/v1/auth/register/**","/api/v1/auth/verify/**","verify/mobile","/api/v1/auth/getEmailAndFirstName","/api/v1/trip/searchPartial","/api/v1/trip/search")
                                         .permitAll()
 //                                        .pathMatchers("").hasRole("service")
 //                                        .pathMatchers("").hasRole("employee")
-//                                        .pathMatchers("").hasRole("admin")
+                                        .pathMatchers("/api/v1/trip/deleteTripById/{tripId}").hasRole("admin")
                                         .anyExchange()
                                         .authenticated()
                 )

@@ -54,7 +54,7 @@ public class TripController {
     //todo put @Argument
 //    @QueryMapping("getTripById")
         @GetMapping("{tripId}")
-    public ResponseDTO getTripDetailsById(@PathVariable("") Long tripId){
+    public ResponseDTO getTripDetailsById(@PathVariable("tripId") Long tripId){
         return tripService.getTripDetailsById(tripId);
     }
 
@@ -81,5 +81,15 @@ public class TripController {
     @GetMapping("get-all")
     public ResponseDTO getAll() throws ParseException {
         return tripService.allTrip();
+    }
+
+    @DeleteMapping("deleteTripById/{tripId}")
+    public ResponseDTO deleteTripById(@PathVariable("tripId") Long tripId){
+        return tripService.deleteTripById(tripId);
+    }
+
+    @GetMapping("getAllTripsByUserIds")
+    public ResponseDTO getAllTripsByUserIds(@RequestHeader("Authorization") String token) throws ParseException {
+        return tripService.getAllTripsByUserIds(token);
     }
 }

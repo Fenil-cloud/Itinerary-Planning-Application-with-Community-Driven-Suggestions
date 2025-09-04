@@ -2,12 +2,12 @@ server:
   port: 8080
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET}
-  admin-username: ${KEYCLOAK_USERNAME}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  server-url: ${KEY_CLOAK_SERVER_URL}
+  realm: ${KEY_CLOAK_REALM}
+  client-id: ${KEY_CLOAK_CLIENT_ID}
+  client-secret: ${KEY_CLOAK_CLIENT_SECRET}
+  admin-username: ${KEY_CLOAK_USER_NAME}
+  admin-password: ${KEY_CLOAK_PASSWORD}
 
 spring:
   kafka:
@@ -20,7 +20,7 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5435/users
-    username: dhruv
+    username: ltineraryplanning
     password: 1234
     driver-class-name: org.postgresql.Driver
 
@@ -33,6 +33,7 @@ spring:
 kafkaTopic:
   topic: authTopic
   redisTopic: authRedisToken
+  reset: resetLinkTopic
 
 # Ratelimiting
 management:
@@ -50,11 +51,11 @@ management:
 
 twilio:
   account:
-    sid: ${TWILIO_ACCOUNT_SID}
+    sid: ACbd65aea27f695296829ebca7ed44de93
   auth:
-    token: ${TWILIO_AUTH_TOKEN}
+    token: bfd018d66959bc1e068bad7eec59fde5
   phone:
-    number: ${TWILIO_PHONE_NUMBER}
+    number: +17178768675
 #
 resilience4j:
   circuitbreaker:

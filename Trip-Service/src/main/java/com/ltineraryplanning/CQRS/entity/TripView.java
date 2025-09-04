@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -18,8 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class TripView {
-    //    @Id
-    private Long tripId;
+    @Id
+    private String tripId;
     private String userId;
     private Long numberOfMembers;
     private String tripName;
@@ -30,6 +31,7 @@ public class TripView {
     private LocalDateTime updatedAt;
     private Boolean isPublic;
     private Boolean isPrivate;
+    private Boolean isDelete;
     private TripType tripType;
     private List<DestinationView> destinations;
     private List<String> shareWithUsernames;

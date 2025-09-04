@@ -36,7 +36,7 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://dhruv:1234@localhost:27018/DLQ?authSource=admin
+      uri: mongodb://fenil:1234@localhost:27018/DLQ?authSource=admin
 
   jpa:
     hibernate:

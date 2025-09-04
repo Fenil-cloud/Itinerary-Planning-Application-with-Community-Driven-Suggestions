@@ -19,4 +19,5 @@ public class DestinationView {
     private LocalDate endDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Boolean isDelete;
 }

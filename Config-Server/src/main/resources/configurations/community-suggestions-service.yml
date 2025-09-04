@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://dhruv:1234@localhost:27018/CommunitySuggestions?authSource=admin
+      uri: mongodb://fenil:1234@localhost:27018/CommunitySuggestions?authSource=admin
 
   kafka:
     consumer:
@@ -35,12 +35,12 @@ KafkaTopic:
 
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SERVER}
-  admin-username: ${KEYCLOAK_ADMIN}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  server-url: ${KEY_CLOAK_SERVER_URL}
+  realm: ${KEY_CLOAK_REALM}
+  client-id: ${KEY_CLOAK_CLIENT_ID}
+  client-secret: ${KEY_CLOAK_CLIENT_SECRET}
+  admin-username: ${KEY_CLOAK_USER_NAME}
+  admin-password: ${KEY_CLOAK_PASSWORD}
 
 management:
   health:

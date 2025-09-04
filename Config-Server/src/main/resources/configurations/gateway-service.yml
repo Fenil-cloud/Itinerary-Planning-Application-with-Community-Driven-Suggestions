@@ -21,6 +21,10 @@ spring:
               uri: lb:http://VOTING-AND-POLL-SERVICE
               predicates:
                 - Path=/api/v1/polls/**, /api/v1/votes/**
+            - id: trip-service
+              uri: lb:http://TRIP-SERVICE
+              predicates:
+                - Path=/api/v1/trip/**
 #            - id: download-service
 #              uri: lb:http://DOWNLOAD-SERVICE
 #              predicates:
@@ -65,12 +69,12 @@ kafkaTopic:
   topic: authRedisToken
 
 keycloak:
-  server-url: ${KEYCLOAK_SERVER_URL}
-  realm: ${KEYCLOAK_REALM}
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SERVER}
-  admin-username: ${KEYCLOAK_ADMIN}
-  admin-password: ${KEYCLOAK_PASSWORD}
+  server-url: ${KEY_CLOAK_SERVER_URL}
+  realm: ${KEY_CLOAK_REALM}
+  client-id: ${KEY_CLOAK_CLIENT_ID}
+  client-secret: ${KEY_CLOAK_CLIENT_SECRET}
+  admin-username: ${KEY_CLOAK_USER_NAME}
+  admin-password: ${KEY_CLOAK_PASSWORD}
 
 
 management:

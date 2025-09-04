@@ -20,4 +20,8 @@ public interface TripService {
     ResponseDTO updateTrip(@Valid TripDTO tripDTO,Long tripId,String authHeader,boolean fullUpdate) throws ParseException;
 
     ResponseDTO allTrip();
+
+    ResponseDTO deleteTripById(Long tripId);
+
+    ResponseDTO getAllTripsByUserIds(String token) throws ParseException;
 }

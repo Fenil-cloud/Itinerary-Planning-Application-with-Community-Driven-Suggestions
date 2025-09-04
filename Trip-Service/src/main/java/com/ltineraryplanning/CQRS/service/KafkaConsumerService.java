@@ -8,4 +8,5 @@ public interface KafkaConsumerService {
     void consumeTripCreatedEvent(TripView tripView);
     void consumeTripSharedEvent(TripSharedEvent event);
     void consumeUpdateTripEvent(TripView tripView);
+    void consumeDeleteTripEvent(TripView tripView);
 }

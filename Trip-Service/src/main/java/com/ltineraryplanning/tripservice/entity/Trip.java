@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.EnumType.STRING;
+
 
 @Entity
 @Getter
@@ -32,6 +34,7 @@ public class Trip {
     private Boolean isPublic;
     private Boolean isPrivate;
     private TripType tripType;
+    private Boolean isDelete;
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Destination> destinations = new ArrayList<>();
     @ElementCollection

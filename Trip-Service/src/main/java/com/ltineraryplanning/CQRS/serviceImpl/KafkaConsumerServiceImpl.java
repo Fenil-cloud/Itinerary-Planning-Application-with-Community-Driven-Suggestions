@@ -27,13 +27,14 @@ public class KafkaConsumerServiceImpl implements KafkaConsumerService {
     public void consumeTripCreatedEvent(TripView tripView) {
         log.info(tripView.getTripName());
         cqrsTripRepository.save(tripView);
+        log.info("trip data saved");
     }
 
     // @KafkaListener(topics = "${kafkaTopic.sendEventTopic}")
     @KafkaListener(topics = "${kafkaTopic.createEventTopic}",groupId = "${spring.kafka.consumer.group-id}")
     @Override
     public void consumeTripSharedEvent(TripSharedEvent event) {
-        TripView tripView = cqrsTripRepository.findById(event.getTripId())
+        TripView tripView = cqrsTripRepository.findById(event.getTripId().toString())
                 .orElseThrow(() -> new TripNotFoundException(Constants.TRIP_NOT_FOUND));
         tripView.getShareWithUsernames().addAll(event.getShareWithUsernames());
         cqrsTripRepository.save(tripView);
@@ -44,6 +45,14 @@ public class KafkaConsumerServiceImpl implements KafkaConsumerService {
     @Override
     public void consumeUpdateTripEvent(TripView tripView) {
         cqrsTripRepository.save(tripView);
+    }
+
+    @KafkaListener(topics = "${kafkaTopic.deleteEventTopic}",groupId = "${spring.kafka.consumer.group-id}")
+    @Override
+    public void consumeDeleteTripEvent(TripView tripView) {
+        log.info("check trip delete or not" + tripView.getIsDelete());
+        cqrsTripRepository.save(tripView);
+        log.info("data saved in db");
     }
 }
 

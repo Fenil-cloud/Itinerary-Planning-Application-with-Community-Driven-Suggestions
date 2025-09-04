@@ -103,6 +103,9 @@ public class AuthServiceImpl implements AuthService {
         String userId = Objects.requireNonNull(response.getBody())[0].getId();
         System.err.println(userId);
         try{
+            if(request.getRoles().toLowerCase().equals("organizer")) {
+                setRole(request.getRoles().toLowerCase(), adminToken, userId);
+            }
             AuthDto authDto = new AuthDto();
             String URL = generateUrl(userId,request.getEmail());
             authDto.setUrl(URL);
@@ -471,5 +474,74 @@ public class AuthServiceImpl implements AuthService {
 
         return null;
     }
+
+    @Override
+    public List<EmailAndFirstNameDTO> getEmailAndFirstName(List<String> usernames) {
+        List<User> users = userRepo.findAllById(usernames);
+        List<EmailAndFirstNameDTO> list = users.stream().map(m-> {
+                    EmailAndFirstNameDTO dto = new EmailAndFirstNameDTO();
+                    dto.setFirstName(m.getFirstName());
+                    dto.setEmail(m.getEmail());
+                    return dto;
+                }
+        ).toList();
+        return list;
+    }
+
+    public String getRoleId(String role,String authToken) {
+        String url = keycloakServerUrl + "/admin/realms/" + realm + "/roles/" + role;
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setBearerAuth(authToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<Map> response =
+                    restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> roles = response.getBody();
+                if (roles != null) {
+                    System.out.println("Role ID: " + roles.get("id"));
+                    return roles.get("id").toString();
+                }
+            } else {
+                System.out.println("Failed: " + response.getStatusCode());
+                return "";
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "";
+        }
+        return "";
+    }
+
+
+    public void setRole(String roleName, String authToken,String userId) {
+
+        String url = keycloakServerUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm";
+        Map<String, String> role = new HashMap<>();
+        String roleId = getRoleId(roleName,authToken);
+        if(roleId != "") {
+            role.put("id", roleId); // role UUID
+            role.put("name", roleName);
+            List<Map<String, String>> requestBody = Collections.singletonList(role);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(authToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<List<Map<String, String>>> entity = new HttpEntity<>(requestBody, headers);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+            System.out.println("Response: " + response.getStatusCode());
+
+        }
+    }
+
 }
 
